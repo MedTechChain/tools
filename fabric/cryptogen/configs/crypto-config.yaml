@@ -3,15 +3,15 @@ OrdererOrgs:
     Domain: healthblocks.com
     Specs:
       - Hostname: orderer
-  - Name: Medivale
-    Domain: Medivale.com
+  - Name: MediVale
+    Domain: medivale.com
     Specs:
       - Hostname: orderer
-  - Name: Healpoint
+  - Name: HealPoint
     Domain: healpoint.com
     Specs:
       - Hostname: orderer
-  - Name: Lifecare
+  - Name: LifeCare
     Domain: lifecare.com
     Specs:
       - Hostname: orderer    
@@ -24,21 +24,21 @@ PeerOrgs:
       Count: 3
     Users:
       Count: 1
-  - Name: Medivale
+  - Name: MediVale
     Domain: medivale.com
     EnableNodeOUs: false
     Template:
       Count: 3
     Users:
       Count: 1
-  - Name: Healpoint
+  - Name: HealPoint
     Domain: healpoint.com
     EnableNodeOUs: false
     Template:
       Count: 3
     Users:
       Count: 1
-  - Name: Lifecare
+  - Name: LifeCare
     Domain: lifecare.com
     EnableNodeOUs: false
     Template:
