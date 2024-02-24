@@ -1,2 +1,2 @@
-*/.generated/*
-install-fabric.sh
+*.generated*
+*install-fabric.sh*

@@ -1,0 +1,88 @@
+version: '3.8'
+
+x-peer-defaults: &peer_defaults
+    image: hyperledger/fabric-peer:$IMAGE_TAG
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/tls/ca.crt
+
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=healthblocks
+    command: peer node start
+    depends_on: 
+      - orderer.healthblocks.com
+    networks:
+      - healthblocks
+
+services:
+  orderer.healthblocks.com:
+    container_name: orderer.healthblocks.com
+    image: hyperledger/fabric-orderer:$IMAGE_TAG
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=INFO
+
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/tls/ca.crt]
+
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/tls/ca.crt]
+    command: orderer
+    volumes:
+    - ./configs/nodes/healthblocks.com/orderer:/var/hyperledger/config
+    - ./.generated/configtx/genesis:/var/hyperledger/genesis
+    - ./.generated/crypto/ordererOrganizations/healthblocks.com/orderers/orderer.healthblocks.com/msp:/var/hyperledger/msp
+    - ./.generated/crypto/ordererOrganizations/healthblocks.com/orderers/orderer.healthblocks.com/tls:/var/hyperledger/tls
+    - orderer.healthblocks.com:/var/ledger
+    ports:
+      - 7050:7050
+    networks:
+      - healthblocks
+
+  peer0.healthblocks.com:
+    <<: *peer_defaults
+    container_name: peer0.healthblocks.com
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/healthblocks.com/peer0:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer0.healthblocks.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer0.healthblocks.com/tls:/var/hyperledger/tls
+      - peer0.healthblocks.com:/var/hyperledger
+
+  peer1.healthblocks.com:
+    <<: *peer_defaults
+    container_name: peer1.healthblocks.com
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/healthblocks.com/peer1:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer1.healthblocks.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer1.healthblocks.com/tls:/var/hyperledger/tls
+      - peer1.healthblocks.com:/var/hyperledger
+
+  peer2.healthblocks.com:
+    <<: *peer_defaults
+    container_name: peer2.healthblocks.com
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/healthblocks.com/peer2:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer2.healthblocks.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healthblocks.com/peers/peer2.healthblocks.com/tls:/var/hyperledger/tls
+      - peer2.healthblocks.com:/var/hyperledger
+
+volumes:
+  orderer.healthblocks.com:
+  peer0.healthblocks.com:
+  peer1.healthblocks.com:
+  peer2.healthblocks.com:
+
+networks:
+  healthblocks:
+    external: true
+    name: "healthblocks"
