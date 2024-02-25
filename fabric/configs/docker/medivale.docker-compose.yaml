@@ -1,0 +1,124 @@
+version: '3.8'
+
+x-orderer-config-override: &orderer_config_override
+  ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
+
+  ORDERER_GENERAL_BOOTSTRAPMETHOD: file
+  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/healthblocks-genesis.block  
+
+  ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
+  ORDERER_GENERAL_LOCALMSPID: MediValeOrdererMSP
+
+  ORDERER_GENERAL_TLS_ENABLED: "true"
+  ORDERER_GENERAL_TLS_PRIVATEKEY: /var/hyperledger/tls/server.key
+  ORDERER_GENERAL_TLS_CERTIFICATE: /var/hyperledger/tls/server.crt
+  ORDERER_GENERAL_TLS_ROOTCAS: "[/var/hyperledger/tls/ca.crt]"  
+
+x-core-config-override: &core_config_override
+  CORE_PEER_NETWORKID: medivale
+
+  CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
+  CORE_PEER_LOCALMSPID: MediValePeerMSP
+
+  CORE_PEER_GOSSIP_USELEADERELECTION: "true"
+  CORE_PEER_GOSSIP_ORGLEADER: "false"
+
+  CORE_PEER_TLS_ENABLED: "true"
+  CORE_PEER_TLS_CERT_FILE: /var/hyperledger/tls/server.crt
+  CORE_PEER_TLS_KEY_FILE: /var/hyperledger/tls/server.key
+  CORE_PEER_TLS_ROOTCERT_FILE: /var/hyperledger/tls/ca.crt
+
+  CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE: medivale
+
+x-peer-defaults: &peer_defaults
+    image: hyperledger/fabric-peer:$FABRIC_IMAGE_TAG
+    environment: &peer_env_vars
+      FABRIC_CFG_PATH: /var/hyperledger/config
+      FABRIC_LOGGING_SPEC: INFO
+      <<: *core_config_override
+    command: peer node start
+    depends_on: 
+      - orderer.medivale.com
+    networks:
+      - medivale
+      - tools
+
+services:
+  orderer.medivale.com:
+    container_name: orderer.medivale.com
+    image: hyperledger/fabric-orderer:$FABRIC_IMAGE_TAG
+    environment:
+      FABRIC_CFG_PATH: /var/hyperledger/config
+      FABRIC_LOGGING_SPEC: INFO
+      <<: *orderer_config_override
+    command: orderer
+    volumes:
+    - ./configs/nodes/orderer:/var/hyperledger/config
+    - ./.generated/configtx/genesis:/var/hyperledger/genesis
+    - ./.generated/crypto/ordererOrganizations/medivale.com/orderers/orderer.medivale.com/msp:/var/hyperledger/msp
+    - ./.generated/crypto/ordererOrganizations/medivale.com/orderers/orderer.medivale.com/tls:/var/hyperledger/tls
+    - orderer.medivale.com:/var/ledger
+    ports:
+      - 8050:7050
+    networks:
+      - medivale
+      - internet
+      - tools
+
+  peer0.medivale.com:
+    <<: *peer_defaults
+    container_name: peer0.medivale.com
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer0.medivale.com
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.medivale.com:7051 peer2.medivale.com:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer0.medivale.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer0.medivale.com/tls:/var/hyperledger/tls
+      - peer0.medivale.com:/var/hyperledger
+
+  peer1.medivale.com:
+    <<: *peer_defaults
+    container_name: peer1.medivale.com
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer1.medivale.com
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.com:7051 peer2.medivale.com:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer1.medivale.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer1.medivale.com/tls:/var/hyperledger/tls
+      - peer1.medivale.com:/var/hyperledger
+
+  peer2.medivale.com:
+    <<: *peer_defaults
+    container_name: peer2.medivale.com
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer2.medivale.com
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.com:7051 peer1.medivale.com:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer2.medivale.com/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medivale.com/peers/peer2.medivale.com/tls:/var/hyperledger/tls
+      - peer2.medivale.com:/var/hyperledger
+
+volumes:
+  orderer.medivale.com:
+  peer0.medivale.com:
+  peer1.medivale.com:
+  peer2.medivale.com:
+
+networks:
+  medivale:
+    name: "medivale"
+  tools:
+    external: true
+    name: "fabric-tools"
+  internet:
+    external: true
+    name: "internet"

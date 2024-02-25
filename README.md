@@ -15,13 +15,14 @@ We will use docker for Fabric, i.e., will not install any binaries.
 
 ### Hyperledger Fabric - Tools
 
-Run `tools-cli.sh [IMAGE_VERSION]` to start an interactive terminal within the docker container `fabric-tools`. This container joins the `healthblocks` network which will be also used by the other nodes.
+Run `tools-cli.sh` to start an interactive terminal within the docker container `fabric-tools`. This container joins the `fabric-tools` network which will be also used by the other nodes. 
+
+The `tools-cmd.sh` script is called by other automation scripts, so the developer can ignore it.
+
+The `scripts` folder is mounted in these containers. These scripts perform commands fabric commands.
 
 ### Setup Hyperledger Fabric Infrastructure
 
-1. Run the `generate.sh` script while using the `tools-cli.sh`.
-
-2. Exit the interactive terminal.
-
-3. Run the `infra-setup.sh [IMAGE_VERSION]`.
+1. Run the `infra-up.sh` for setup.
+2. Run `infra-down.sh` to clean the environment.
 
