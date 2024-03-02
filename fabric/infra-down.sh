@@ -21,7 +21,7 @@ delete-docker-network() {
 docker-compose-down "lifecare"
 docker-compose-down "healpoint"
 docker-compose-down "medivale"
-docker-compose-down "healthblocks"
+docker-compose-down "medtechchain"
 
 delete-docker-network "fabric-tools"
 delete-docker-network "internet"

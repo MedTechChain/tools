@@ -1,0 +1,127 @@
+version: '3.8'
+
+x-orderer-config-override: &orderer_config_override
+  ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
+
+  ORDERER_GENERAL_BOOTSTRAPMETHOD: file
+  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/medtechchain-genesis.block  
+
+  ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
+  ORDERER_GENERAL_LOCALMSPID: MedTechChainOrdererMSP
+
+  ORDERER_GENERAL_TLS_ENABLED: "true"
+  ORDERER_GENERAL_TLS_PRIVATEKEY: /var/hyperledger/tls/server.key
+  ORDERER_GENERAL_TLS_CERTIFICATE: /var/hyperledger/tls/server.crt
+  ORDERER_GENERAL_TLS_ROOTCAS: "[/var/hyperledger/tls/ca.crt]"  
+
+x-core-config-override: &core_config_override
+  CORE_PEER_NETWORKID: medtechchain
+
+  CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
+  CORE_PEER_LOCALMSPID: MedTechChainPeerMSP
+
+  CORE_PEER_GOSSIP_USELEADERELECTION: "true"
+  CORE_PEER_GOSSIP_ORGLEADER: "false"
+
+  CORE_PEER_TLS_ENABLED: "true"
+  CORE_PEER_TLS_CERT_FILE: /var/hyperledger/tls/server.crt
+  CORE_PEER_TLS_KEY_FILE: /var/hyperledger/tls/server.key
+  CORE_PEER_TLS_ROOTCERT_FILE: /var/hyperledger/tls/ca.crt
+
+  CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE: medtechchain
+
+x-peer-defaults: &peer_defaults
+    image: hyperledger/fabric-peer:$FABRIC_IMAGE_TAG
+    environment: &peer_env_vars
+      FABRIC_CFG_PATH: /var/hyperledger/config
+      FABRIC_LOGGING_SPEC: INFO
+      <<: *core_config_override
+    command: peer node start
+    depends_on: 
+      - orderer.medtechchain.nl
+    networks:
+      - medtechchain
+      - tools
+
+services:
+  orderer.medtechchain.nl:
+    container_name: orderer.medtechchain.nl
+    image: hyperledger/fabric-orderer:$FABRIC_IMAGE_TAG
+    environment:
+      FABRIC_CFG_PATH: /var/hyperledger/config
+      FABRIC_LOGGING_SPEC: INFO
+      <<: *orderer_config_override
+    command: orderer
+    volumes:
+    - ./configs/nodes/orderer:/var/hyperledger/config
+    - ./.generated/configtx/genesis:/var/hyperledger/genesis
+    - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp:/var/hyperledger/msp
+    - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls:/var/hyperledger/tls
+    - orderer.medtechchain.nl:/var/ledger
+    ports:
+      - 7050:7050
+    networks:
+      - medtechchain
+      - internet
+      - tools
+
+  peer0.medtechchain.nl:
+    <<: *peer_defaults
+    container_name: peer0.medtechchain.nl
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer0.medtechchain.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.medtechchain.nl:7051 peer2.medtechchain.nl:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/configtx/app-channel:/var/hyperledger/app-channel
+      - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer0.medtechchain.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer0.medtechchain.nl/tls:/var/hyperledger/tls
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/users/:/var/hyperledger/users
+      - peer0.medtechchain.nl:/var/hyperledger
+
+  peer1.medtechchain.nl:
+    <<: *peer_defaults
+    container_name: peer1.medtechchain.nl
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer1.medtechchain.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medtechchain.nl:7051 peer2.medtechchain.nl:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer1.medtechchain.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer1.medtechchain.nl/tls:/var/hyperledger/tls
+      - peer1.medtechchain.nl:/var/hyperledger
+
+  peer2.medtechchain.nl:
+    <<: *peer_defaults
+    container_name: peer2.medtechchain.nl
+    environment:
+      <<: *peer_env_vars
+      CORE_PEER_ID: peer2.medtechchain.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medtechchain.nl:7051 peer1.medtechchain.nl:7051"
+    volumes:
+      - /var/run/:/var/run/
+      - ./configs/nodes/peer:/var/hyperledger/config
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer2.medtechchain.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer2.medtechchain.nl/tls:/var/hyperledger/tls
+      - peer2.medtechchain.nl:/var/hyperledger
+
+volumes:
+  orderer.medtechchain.nl:
+  peer0.medtechchain.nl:
+  peer1.medtechchain.nl:
+  peer2.medtechchain.nl:
+
+networks:
+  medtechchain:
+    name: "medtechchain"
+  tools:
+    external: true
+    name: "fabric-tools"
+  internet:
+    external: true
+    name: "internet"

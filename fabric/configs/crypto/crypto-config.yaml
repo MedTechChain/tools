@@ -1,24 +1,24 @@
 OrdererOrgs:
-  - Name: HealthBlocks
-    Domain: healthblocks.com
+  - Name: MedTechChain
+    Domain: medtechchain.nl
     Specs:
       - Hostname: orderer
   - Name: MediVale
-    Domain: medivale.com
+    Domain: medivale.nl
     Specs:
       - Hostname: orderer
   - Name: HealPoint
-    Domain: healpoint.com
+    Domain: healpoint.nl
     Specs:
       - Hostname: orderer
   - Name: LifeCare
-    Domain: lifecare.com
+    Domain: lifecare.nl
     Specs:
       - Hostname: orderer
 
 PeerOrgs:
-  - Name: HealthBlocks
-    Domain: healthblocks.com
+  - Name: MedTechChain
+    Domain: medtechchain.nl
     EnableNodeOUs: false
     Template:
       Count: 3
@@ -26,7 +26,7 @@ PeerOrgs:
       Count: 1
 
   - Name: MediVale
-    Domain: medivale.com
+    Domain: medivale.nl
     EnableNodeOUs: false
     Template:
       Count: 3
@@ -34,7 +34,7 @@ PeerOrgs:
       Count: 1
 
   - Name: HealPoint
-    Domain: healpoint.com
+    Domain: healpoint.nl
     EnableNodeOUs: false
     Template:
       Count: 3
@@ -42,7 +42,7 @@ PeerOrgs:
       Count: 1
 
   - Name: LifeCare
-    Domain: lifecare.com
+    Domain: lifecare.nl
     EnableNodeOUs: false
     Template:
       Count: 3

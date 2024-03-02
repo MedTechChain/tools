@@ -1,46 +1,46 @@
 Organizations:
-  - &HealthBlocksOrderer
-    Name: HealthBlocksOrderer
+  - &MedTechChainOrderer
+    Name: MedTechChainOrderer
     SkipAsForeign: false
-    ID: HealthBlocksOrdererMSP
-    MSPDir: ../../.generated/crypto/ordererOrganizations/healthblocks.com/msp
+    ID: MedTechChainOrdererMSP
+    MSPDir: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/msp
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('HealthBlocksOrdererMSP.member')"
+        Rule: "OR('MedTechChainOrdererMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('HealthBlocksOrdererMSP.member')"
+        Rule: "OR('MedTechChainOrdererMSP.member')"
       Admins:
         Type: Signature
-        Rule: "OR('HealthBlocksOrdererMSP.admin')"
+        Rule: "OR('MedTechChainOrdererMSP.admin')"
     OrdererEndpoints:
-      - "orderer.healthblocks.com:7050"
+      - "orderer.medtechchain.nl:7050"
 
-  - &HealthBlocksPeer
-    Name: HealthBlocksPeer
+  - &MedTechChainPeer
+    Name: MedTechChainPeer
     SkipAsForeign: false
-    ID: HealthBlocksPeerMSP
-    MSPDir: ../../.generated/crypto/peerOrganizations/healthblocks.com/msp
+    ID: MedTechChainPeerMSP
+    MSPDir: ../../.generated/crypto/peerOrganizations/medtechchain.nl/msp
     Policies:
       Readers:
           Type: Signature
-          Rule: "OR('HealthBlocksPeerMSP.member')"
+          Rule: "OR('MedTechChainPeerMSP.member')"
       Writers:
           Type: Signature
-          Rule: "OR('HealthBlocksPeerMSP.member')"
+          Rule: "OR('MedTechChainPeerMSP.member')"
       Admins:
           Type: Signature
-          Rule: "OR('HealthBlocksPeerMSP.admin','HealthBlocksOrdererMSP.admin')"
+          Rule: "OR('MedTechChainPeerMSP.admin','MedTechChainOrdererMSP.admin')"
       Endorsement:
           Type: Signature
-          Rule: "OR('HealthBlocksPeerMSP.member')"
+          Rule: "OR('MedTechChainPeerMSP.member')"
   
   - &MediValeOrderer
     Name: MediValeOrderer
     SkipAsForeign: false
     ID: MediValeOrdererMSP
-    MSPDir: ../../.generated/crypto/ordererOrganizations/medivale.com/msp
+    MSPDir: ../../.generated/crypto/ordererOrganizations/medivale.nl/msp
     Policies:
       Readers:
         Type: Signature
@@ -55,13 +55,13 @@ Organizations:
         Type: Signature
         Rule: "OR('MediValeOrdererMSP.peer')"
     OrdererEndpoints:
-      - "orderer.medivale.com:7050"
+      - "orderer.medivale.nl:7050"
 
   - &MediValePeer
     Name: MediValePeer
     SkipAsForeign: false
     ID: MediValePeerMSP
-    MSPDir: ../../.generated/crypto/peerOrganizations/medivale.com/msp
+    MSPDir: ../../.generated/crypto/peerOrganizations/medivale.nl/msp
     Policies:
       Readers:
           Type: Signature
@@ -80,7 +80,7 @@ Organizations:
     Name: HealPointOrderer
     SkipAsForeign: false
     ID: HealPointOrdererMSP
-    MSPDir: ../../.generated/crypto/ordererOrganizations/healpoint.com/msp
+    MSPDir: ../../.generated/crypto/ordererOrganizations/healpoint.nl/msp
     Policies:
       Readers:
         Type: Signature
@@ -95,13 +95,13 @@ Organizations:
         Type: Signature
         Rule: "OR('HealPointOrdererMSP.peer')"
     OrdererEndpoints:
-      - "orderer.healpoint.com:7050"
+      - "orderer.healpoint.nl:7050"
   
   - &HealPointPeer
     Name: HealPointPeer
     SkipAsForeign: false
     ID: HealPointPeerMSP
-    MSPDir: ../../.generated/crypto/peerOrganizations/healpoint.com/msp
+    MSPDir: ../../.generated/crypto/peerOrganizations/healpoint.nl/msp
     Policies:
       Readers:
           Type: Signature
@@ -120,7 +120,7 @@ Organizations:
     Name: LifeCareOrderer
     SkipAsForeign: false
     ID: LifeCareOrdererMSP
-    MSPDir: ../../.generated/crypto/ordererOrganizations/lifecare.com/msp
+    MSPDir: ../../.generated/crypto/ordererOrganizations/lifecare.nl/msp
     Policies:
       Readers:
         Type: Signature
@@ -135,13 +135,13 @@ Organizations:
         Type: Signature
         Rule: "OR('LifeCareOrdererMSP.peer')"
     OrdererEndpoints:
-      - "orderer.lifecare.com:7050"
+      - "orderer.lifecare.nl:7050"
 
   - &LifeCarePeer
     Name: LifeCarePeer
     SkipAsForeign: false
     ID: LifeCarePeerMSP
-    MSPDir: ../../.generated/crypto/peerOrganizations/lifecare.com/msp
+    MSPDir: ../../.generated/crypto/peerOrganizations/lifecare.nl/msp
     Policies:
       Readers:
           Type: Signature
@@ -228,22 +228,22 @@ Orderer: &OrdererDefaults
 
   EtcdRaft:
     Consenters:
-      - Host: orderer.healthblocks.com
+      - Host: orderer.medtechchain.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/healthblocks.com/orderers/orderer.healthblocks.com/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/healthblocks.com/orderers/orderer.healthblocks.com/tls/server.crt
-      - Host: orderer.medivale.com
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls/server.crt
+      - Host: orderer.medivale.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.com/orderers/orderer.medivale.com/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.com/orderers/orderer.medivale.com/tls/server.crt
-      - Host: orderer.healpoint.com
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/tls/server.crt
+      - Host: orderer.healpoint.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.com/orderers/orderer.healpoint.com/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.com/orderers/orderer.healpoint.com/tls/server.crt
-      - Host: orderer.lifecare.com
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/tls/server.crt
+      - Host: orderer.lifecare.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.com/orderers/orderer.lifecare.com/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.com/orderers/orderer.lifecare.com/tls/server.crt
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/tls/server.crt
 
     Options:
       TickInterval: 500ms
@@ -296,31 +296,31 @@ Channel: &ChannelDefaults
     <<: *ChannelCapabilities
 
 Profiles:
-  HealthBlocksGenesis:
+  MedTechChainGenesis:
     <<: *ChannelDefaults
     Orderer:
       <<: *OrdererDefaults
       Organizations:
-        - *HealthBlocksOrderer
+        - *MedTechChainOrderer
         - *MediValeOrderer
         - *HealPointOrderer
         - *LifeCareOrderer
     Consortiums:
-      HealthBlocksConsortium:
+      MedTechChainConsortium:
         Organizations:
-          - *HealthBlocksPeer
+          - *MedTechChainPeer
           - *MediValePeer
           - *HealPointPeer
           - *LifeCarePeer
 
 
-  HealthBlocksChannel:
+  MedTechChainChannel:
     <<: *ChannelDefaults
-    Consortium: HealthBlocksConsortium
+    Consortium: MedTechChainConsortium
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - *HealthBlocksPeer
+        - *MedTechChainPeer
         - *MediValePeer
         - *HealPointPeer
         - *LifeCarePeer

@@ -18,12 +18,20 @@ create-docker-network() {
     fi
 }
 
+echo "Generate configurations and crypto material"
 ./tools-cmd.sh "./clean.sh; ./generate.sh"
 
+echo "Set up docker networks and run containers"
 create-docker-network "fabric-tools"
 create-docker-network "internet"
 
-docker-compose-up "healthblocks"
+docker-compose-up "medtechchain"
 docker-compose-up "medivale"
 docker-compose-up "healpoint"
 docker-compose-up "lifecare"
+
+echo "Sleep until containers start..."
+sleep 10
+
+./app-channel-up.sh
+

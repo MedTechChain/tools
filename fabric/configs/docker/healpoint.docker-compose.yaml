@@ -4,7 +4,7 @@ x-orderer-config-override: &orderer_config_override
   ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
   
   ORDERER_GENERAL_BOOTSTRAPMETHOD: file
-  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/healthblocks-genesis.block  
+  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/medtechchain-genesis.block  
 
   ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
   ORDERER_GENERAL_LOCALMSPID: HealPointOrdererMSP
@@ -38,14 +38,14 @@ x-peer-defaults: &peer_defaults
       <<: *core_config_override
     command: peer node start
     depends_on: 
-      - orderer.healpoint.com
+      - orderer.healpoint.nl
     networks:
       - healpoint
       - tools
 
 services:
-  orderer.healpoint.com:
-    container_name: orderer.healpoint.com
+  orderer.healpoint.nl:
+    container_name: orderer.healpoint.nl
     image: hyperledger/fabric-orderer:$FABRIC_IMAGE_TAG
     environment:
       FABRIC_CFG_PATH: /var/hyperledger/config
@@ -55,9 +55,9 @@ services:
     volumes:
     - ./configs/nodes/orderer:/var/hyperledger/config
     - ./.generated/configtx/genesis:/var/hyperledger/genesis
-    - ./.generated/crypto/ordererOrganizations/healpoint.com/orderers/orderer.healpoint.com/msp:/var/hyperledger/msp
-    - ./.generated/crypto/ordererOrganizations/healpoint.com/orderers/orderer.healpoint.com/tls:/var/hyperledger/tls
-    - orderer.healpoint.com:/var/ledger
+    - ./.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/msp:/var/hyperledger/msp
+    - ./.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/tls:/var/hyperledger/tls
+    - orderer.healpoint.nl:/var/ledger
     ports:
       - 9050:7050
     networks:
@@ -65,53 +65,53 @@ services:
       - internet
       - tools
 
-  peer0.healpoint.com:
+  peer0.healpoint.nl:
     <<: *peer_defaults
-    container_name: peer0.healpoint.com
+    container_name: peer0.healpoint.nl
     environment:
       <<: *peer_env_vars
-      CORE_PEER_ID: peer0.healpoint.com
-      CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.healpoint.com:7051 peer2.healpoint.com:7051"
+      CORE_PEER_ID: peer0.healpoint.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.healpoint.nl:7051 peer2.healpoint.nl:7051"
     volumes:
       - /var/run/:/var/run/
       - ./configs/nodes/peer:/var/hyperledger/config
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer0.healpoint.com/msp:/var/hyperledger/msp
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer0.healpoint.com/tls:/var/hyperledger/tls
-      - peer0.healpoint.com:/var/hyperledger
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer0.healpoint.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer0.healpoint.nl/tls:/var/hyperledger/tls
+      - peer0.healpoint.nl:/var/hyperledger
 
-  peer1.healpoint.com:
+  peer1.healpoint.nl:
     <<: *peer_defaults
-    container_name: peer1.healpoint.com
+    container_name: peer1.healpoint.nl
     environment:
       <<: *peer_env_vars
-      CORE_PEER_ID: peer1.healpoint.com
-      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.com:7051 peer2.healpoint.com:7051"
+      CORE_PEER_ID: peer1.healpoint.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.nl:7051 peer2.healpoint.nl:7051"
     volumes:
       - /var/run/:/var/run/
       - ./configs/nodes/peer:/var/hyperledger/config
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer1.healpoint.com/msp:/var/hyperledger/msp
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer1.healpoint.com/tls:/var/hyperledger/tls
-      - peer1.healpoint.com:/var/hyperledger
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer1.healpoint.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer1.healpoint.nl/tls:/var/hyperledger/tls
+      - peer1.healpoint.nl:/var/hyperledger
 
-  peer2.healpoint.com:
+  peer2.healpoint.nl:
     <<: *peer_defaults
-    container_name: peer2.healpoint.com
+    container_name: peer2.healpoint.nl
     environment:
       <<: *peer_env_vars
-      CORE_PEER_ID: peer2.healpoint.com
-      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.com:7051 peer1.healpoint.com:7051"
+      CORE_PEER_ID: peer2.healpoint.nl
+      CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.nl:7051 peer1.healpoint.nl:7051"
     volumes:
       - /var/run/:/var/run/
       - ./configs/nodes/peer:/var/hyperledger/config
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer2.healpoint.com/msp:/var/hyperledger/msp
-      - ./.generated/crypto/peerOrganizations/healpoint.com/peers/peer2.healpoint.com/tls:/var/hyperledger/tls
-      - peer2.healpoint.com:/var/hyperledger
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer2.healpoint.nl/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer2.healpoint.nl/tls:/var/hyperledger/tls
+      - peer2.healpoint.nl:/var/hyperledger
 
 volumes:
-  orderer.healpoint.com:
-  peer0.healpoint.com:
-  peer1.healpoint.com:
-  peer2.healpoint.com:
+  orderer.healpoint.nl:
+  peer0.healpoint.nl:
+  peer1.healpoint.nl:
+  peer2.healpoint.nl:
 
 networks:
   healpoint:

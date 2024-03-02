@@ -6,12 +6,12 @@ cd "$FABRIC_DIR"
 cryptogen generate --config=./configs/crypto/crypto-config.yaml --output ./.generated/crypto
 
 configtxgen -configPath "./configs/configtx" \
-            -profile HealthBlocksGenesis \
+            -profile MedTechChainGenesis \
             -channelID system-channel \
-            -outputBlock "$FABRIC_DIR/.generated/configtx/genesis/healthblocks-genesis.block"
+            -outputBlock "$FABRIC_DIR/.generated/configtx/genesis/medtechchain-genesis.block"
 
 configtxgen -configPath "./configs/configtx" \
-            -profile HealthBlocksChannel \
-            -channelID healthblocks \
-            -outputCreateChannelTx "$FABRIC_DIR/.generated/configtx/channel/healthblocks-channel.tx"
+            -profile MedTechChainChannel \
+            -channelID medtechchain \
+            -outputCreateChannelTx "$FABRIC_DIR/.generated/configtx/app-channel/medtechchain-channel.tx"
 
