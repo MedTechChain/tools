@@ -45,10 +45,7 @@ services:
       explorerdb.medtechchain.nl:
         condition: service_healthy
     networks:
-      - medtechchain
-      - medivale
-      - healpoint
-      - lifecare
+      - internet
       - blockchain-explorer
 
 volumes:
@@ -58,15 +55,6 @@ volumes:
 networks:
   blockchain-explorer:
     name: "blockchain-explorer"  
-  medtechchain:
+  internet:
     external: true
-    name: "medtechchain"
-  medivale:
-    external: true
-    name: "medivale"
-  healpoint:
-    external: true
-    name: "healpoint"
-  lifecare:
-    external: true
-    name: "lifecare"
+    name: "internet"

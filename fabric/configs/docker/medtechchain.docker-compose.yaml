@@ -4,7 +4,7 @@ x-orderer-config-override: &orderer_config_override
   ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
 
   ORDERER_GENERAL_BOOTSTRAPMETHOD: file
-  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/medtechchain-genesis.block  
+  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis-block/medtechchain-genesis.block  
 
   ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
   ORDERER_GENERAL_LOCALMSPID: MedTechChainOrdererMSP
@@ -55,7 +55,7 @@ services:
     command: orderer
     volumes:
     - ./configs/nodes/orderer:/var/hyperledger/config
-    - ./.generated/configtx/genesis:/var/hyperledger/genesis
+    - ./.generated/genesis-block:/var/hyperledger/genesis-block
     - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp:/var/hyperledger/msp
     - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls:/var/hyperledger/tls
     - orderer.medtechchain.nl:/var/ledger
@@ -84,8 +84,8 @@ services:
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer0.medtechchain.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer0.medtechchain.nl/tls:/var/hyperledger/tls
 
-      # channel tx to create the channel (needed only by peer0 of medtechchain)
-      - ./.generated/configtx/app-channel:/var/hyperledger/app-channel
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer0.medtechchain.nl:/var/hyperledger/channel-artifacts
 
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
@@ -117,6 +117,9 @@ services:
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer1.medtechchain.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer1.medtechchain.nl/tls:/var/hyperledger/tls
 
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer1.medtechchain.nl:/var/hyperledger/channel-artifacts
+
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
 
@@ -136,6 +139,7 @@ services:
       <<: *peer_env_vars
       CORE_PEER_ID: peer2.medtechchain.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medtechchain.nl:7051 peer1.medtechchain.nl:7051"
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: "peer2.medtechchain.nl:7051"
     volumes:
       # chaincode docker mount
       - /var/run/:/var/run/
@@ -146,6 +150,9 @@ services:
       # node msp & tls
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer2.medtechchain.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/peers/peer2.medtechchain.nl/tls:/var/hyperledger/tls
+
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer2.medtechchain.nl:/var/hyperledger/channel-artifacts
 
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
@@ -158,6 +165,10 @@ services:
 
       # blocks persistance
       - peer2.medtechchain.nl:/var/hyperledger
+    networks:
+      - medtechchain
+      - internet
+      - tools
 
 volumes:
   orderer.medtechchain.nl:
@@ -167,7 +178,6 @@ volumes:
 
 networks:
   medtechchain:
-    external: true
     name: "medtechchain"
   tools:
     external: true

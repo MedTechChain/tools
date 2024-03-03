@@ -4,7 +4,7 @@ x-orderer-config-override: &orderer_config_override
   ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
 
   ORDERER_GENERAL_BOOTSTRAPMETHOD: file
-  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/medtechchain-genesis.block  
+  ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis-block/medtechchain-genesis.block  
 
   ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
   ORDERER_GENERAL_LOCALMSPID: LifeCareOrdererMSP
@@ -55,7 +55,7 @@ services:
     command: orderer
     volumes:
     - ./configs/nodes/orderer:/var/hyperledger/config
-    - ./.generated/configtx/genesis:/var/hyperledger/genesis
+    - ./.generated/genesis-block:/var/hyperledger/genesis-block
     - ./.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/msp:/var/hyperledger/msp
     - ./.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/tls:/var/hyperledger/tls
     - orderer.lifecare.nl:/var/ledger
@@ -83,6 +83,9 @@ services:
       # node msp & tls
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer0.lifecare.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer0.lifecare.nl/tls:/var/hyperledger/tls
+
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer0.lifecare.nl:/var/hyperledger/channel-artifacts
 
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
@@ -114,6 +117,9 @@ services:
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer1.lifecare.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer1.lifecare.nl/tls:/var/hyperledger/tls
 
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer1.lifecare.nl:/var/hyperledger/channel-artifacts
+
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
 
@@ -133,6 +139,7 @@ services:
       <<: *peer_env_vars
       CORE_PEER_ID: peer2.lifecare.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.lifecare.nl:7051 peer1.lifecare.nl:7051"
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: "peer2.lifecare.nl:7051"
     volumes:
       # chaincode docker mount
       - /var/run/:/var/run/
@@ -143,6 +150,9 @@ services:
       # node msp & tls
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer2.lifecare.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/lifecare.nl/peers/peer2.lifecare.nl/tls:/var/hyperledger/tls
+
+      # channel artifacts mount
+      - ./.generated/channel-artifacts/peer/peer2.lifecare.nl:/var/hyperledger/channel-artifacts
 
       # orderer tlscacert to create / join the channel
       - ./.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
@@ -155,6 +165,10 @@ services:
 
       # blocks persistance
       - peer2.lifecare.nl:/var/hyperledger
+    networks:
+      - lifecare
+      - internet
+      - tools
 
 volumes:
   orderer.lifecare.nl:
@@ -164,7 +178,6 @@ volumes:
 
 networks:
   lifecare:
-    external: true
     name: "lifecare"
   tools:
     external: true

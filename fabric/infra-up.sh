@@ -19,7 +19,7 @@ echo "Generate configurations and crypto material"
 ./tools-cmd.sh "./clean.sh; ./generate.sh"
 
 echo "Set up docker networks and run containers"
-for network in "fabric-tools" "internet" "medtechchain" "medivale" "healpoint" "lifecare"; do
+for network in "fabric-tools" "internet"; do
     create-docker-network $network
 done
 
@@ -47,6 +47,15 @@ for domain in "medivale.nl" "healpoint.nl" "lifecare.nl"; do
     for peer in "peer0" "peer1" "peer2"; do 
         docker exec "$peer.$domain" bash -c "./join-app-channel.sh $peer $domain"
     done
+done
+
+
+echo "Set peer2 as anchor peers" 
+for i in "medtechchain.nl MedTechChainPeer" "medivale.nl MediValePeer" "healpoint.nl HealPointPeer" "lifecare.nl LifeCarePeer"; do
+    set -- $i
+    docker exec "peer2.$1" bash -c "./fetch-channel-config-block.sh peer2 $1"
+    ./tools-cmd.sh "./generate-anchor-peer-update-channel-config.sh peer2 $1 $2"
+    docker exec "peer2.$1" bash -c "./update-channel-config.sh peer2 $1"
 done
 
 

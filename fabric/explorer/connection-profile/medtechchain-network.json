@@ -22,9 +22,11 @@
     "channels": {
         "medtechchain": {
             "peers": {
-                "peer0.medtechchain.nl": {},
-                "peer1.medtechchain.nl": {},
-                "peer2.medtechchain.nl": {}
+                "peer2.medtechchain.nl": {},
+                "peer2.medivale.nl": {},
+                "peer2.healpoint.nl": {},
+                "peer2.lifecare.nl": {}
+
             },
             "connection": {
                 "timeout": {
@@ -47,8 +49,6 @@
                 "path": "/tmp/crypto/peerOrganizations/medtechchain.nl/users/User1@medtechchain.nl/msp/signcerts/User1@medtechchain.nl-cert.pem"
             },
             "peers": [
-                "peer0.medtechchain.nl",
-                "peer1.medtechchain.nl",
                 "peer2.medtechchain.nl"
             ]
         },
@@ -61,8 +61,6 @@
                 "path": "/tmp/crypto/peerOrganizations/medivale.nl/users/User1@medivale.nl/msp/signcerts/User1@medivale.nl-cert.pem"
             },
             "peers": [
-                "peer0.medivale.nl",
-                "peer1.medivale.nl",
                 "peer2.medivale.nl"
             ]
         },
@@ -75,8 +73,6 @@
                 "path": "/tmp/crypto/peerOrganizations/healpoint.nl/users/User1@healpoint.nl/msp/signcerts/User1@healpoint.nl-cert.pem"
             },
             "peers": [
-                "peer0.healpoint.nl",
-                "peer1.healpoint.nl",
                 "peer2.healpoint.nl"
             ]
         },
@@ -89,42 +85,16 @@
                 "path": "/tmp/crypto/peerOrganizations/lifecare.nl/users/User1@lifecare.nl/msp/signcerts/User1@lifecare.nl-cert.pem"
             },
             "peers": [
-                "peer0.lifecare.nl",
-                "peer1.lifecare.nl",
                 "peer2.lifecare.nl"
             ]
         }
     },
     "peers": {
-        "peer0.medtechchain.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/medtechchain.nl/peers/peer0.medtechchain.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer0.medtechchain.nl:7051"
-        },
-        "peer1.medtechchain.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/medtechchain.nl/peers/peer1.medtechchain.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer1.medtechchain.nl:7051"
-        },
         "peer2.medtechchain.nl": {
             "tlsCACerts": {
                 "path": "/tmp/crypto/peerOrganizations/medtechchain.nl/peers/peer2.medtechchain.nl/tls/ca.crt"
             },
             "url": "grpcs://peer2.medtechchain.nl:7051"
-        },
-        "peer0.medivale.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/medivale.nl/peers/peer0.medivale.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer0.medivale.nl:7051"
-        },
-        "peer1.medivale.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/medivale.nl/peers/peer1.medivale.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer1.medivale.nl:7051"
         },
         "peer2.medivale.nl": {
             "tlsCACerts": {
@@ -132,35 +102,11 @@
             },
             "url": "grpcs://peer2.medivale.nl:7051"
         },
-        "peer0.healpoint.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/healpoint.nl/peers/peer0.healpoint.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer0.healpoint.nl:7051"
-        },
-        "peer1.healpoint.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/healpoint.nl/peers/peer1.healpoint.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer1.healpoint.nl:7051"
-        },
         "peer2.healpoint.nl": {
             "tlsCACerts": {
                 "path": "/tmp/crypto/peerOrganizations/healpoint.nl/peers/peer2.healpoint.nl/tls/ca.crt"
             },
             "url": "grpcs://peer2.healpoint.nl:7051"
-        },
-        "peer0.lifecare.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/lifecare.nl/peers/peer0.lifecare.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer0.lifecare.nl:7051"
-        },
-        "peer1.lifecare.nl": {
-            "tlsCACerts": {
-                "path": "/tmp/crypto/peerOrganizations/lifecare.nl/peers/peer1.lifecare.nl/tls/ca.crt"
-            },
-            "url": "grpcs://peer1.lifecare.nl:7051"
         },
         "peer2.lifecare.nl": {
             "tlsCACerts": {

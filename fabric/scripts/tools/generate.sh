@@ -8,10 +8,16 @@ cryptogen generate --config=./configs/crypto/crypto-config.yaml --output ./.gene
 configtxgen -configPath "./configs/configtx" \
             -profile MedTechChainGenesis \
             -channelID system-channel \
-            -outputBlock "$FABRIC_DIR/.generated/configtx/genesis/medtechchain-genesis.block"
+            -outputBlock "$FABRIC_DIR/.generated/genesis-block/medtechchain-genesis.block"
 
 configtxgen -configPath "./configs/configtx" \
             -profile MedTechChainChannel \
             -channelID medtechchain \
-            -outputCreateChannelTx "$FABRIC_DIR/.generated/configtx/app-channel/medtechchain-channel.tx"
+            -outputCreateChannelTx "$FABRIC_DIR/.generated/channel-artifacts/peer/peer0.medtechchain.nl/medtechchain-channel.tx"
 
+# Used to later mount configurations related to channel artifacts
+for domain in "medivale.nl" "healpoint.nl" "lifecare.nl"; do
+    for peer in "peer0" "peer1" "peer2"; do 
+        mkdir -p "$FABRIC_DIR/.generated/channel-artifacts/peer/$peer.$domain"
+    done
+done

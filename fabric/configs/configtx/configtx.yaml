@@ -14,6 +14,9 @@ Organizations:
       Admins:
         Type: Signature
         Rule: "OR('MedTechChainOrdererMSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('MedTechChainOrdererMSP.member')"
     OrdererEndpoints:
       - "orderer.medtechchain.nl:7050"
 
@@ -24,18 +27,18 @@ Organizations:
     MSPDir: ../../.generated/crypto/peerOrganizations/medtechchain.nl/msp
     Policies:
       Readers:
-          Type: Signature
-          Rule: "OR('MedTechChainPeerMSP.member')"
+        Type: Signature
+        Rule: "OR('MedTechChainPeerMSP.member')"
       Writers:
-          Type: Signature
-          Rule: "OR('MedTechChainPeerMSP.member')"
+        Type: Signature
+        Rule: "OR('MedTechChainPeerMSP.member')"
       Admins:
-          Type: Signature
-          Rule: "OR('MedTechChainPeerMSP.admin','MedTechChainOrdererMSP.admin')"
+        Type: Signature
+        Rule: "OR('MedTechChainPeerMSP.admin')"
       Endorsement:
-          Type: Signature
-          Rule: "OR('MedTechChainPeerMSP.member')"
-  
+        Type: Signature
+        Rule: "OR('MedTechChainPeerMSP.member')"
+
   - &MediValeOrderer
     Name: MediValeOrderer
     SkipAsForeign: false
@@ -44,16 +47,16 @@ Organizations:
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('MediValeOrdererMSP.admin', 'MediValeOrdererMSP.peer', 'MediValeOrdererMSP.client')"
+        Rule: "OR('MediValeOrdererMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('MediValeOrdererMSP.admin', 'MediValeOrdererMSP.client')"
+        Rule: "OR('MediValeOrdererMSP.member')"
       Admins:
         Type: Signature
         Rule: "OR('MediValeOrdererMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('MediValeOrdererMSP.peer')"
+        Rule: "OR('MediValeOrdererMSP.member')"
     OrdererEndpoints:
       - "orderer.medivale.nl:7050"
 
@@ -64,18 +67,18 @@ Organizations:
     MSPDir: ../../.generated/crypto/peerOrganizations/medivale.nl/msp
     Policies:
       Readers:
-          Type: Signature
-          Rule: "OR('MediValePeerMSP.member')"
+        Type: Signature
+        Rule: "OR('MediValePeerMSP.member')"
       Writers:
-          Type: Signature
-          Rule: "OR('MediValePeerMSP.member')"
+        Type: Signature
+        Rule: "OR('MediValePeerMSP.member')"
       Admins:
-          Type: Signature
-          Rule: "OR('MediValePeerMSP.admin','MediValeOrdererMSP.admin')"
+        Type: Signature
+        Rule: "OR('MediValePeerMSP.admin')"
       Endorsement:
-          Type: Signature
-          Rule: "OR('MediValePeerMSP.member')"
-  
+        Type: Signature
+        Rule: "OR('MediValePeerMSP.member')"
+
   - &HealPointOrderer
     Name: HealPointOrderer
     SkipAsForeign: false
@@ -84,19 +87,19 @@ Organizations:
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('HealPointOrdererMSP.admin', 'HealPointOrdererMSP.peer', 'HealPointOrdererMSP.client')"
+        Rule: "OR('HealPointOrdererMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('HealPointOrdererMSP.admin', 'HealPointOrdererMSP.client')"
+        Rule: "OR('HealPointOrdererMSP.member')"
       Admins:
         Type: Signature
         Rule: "OR('HealPointOrdererMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('HealPointOrdererMSP.peer')"
+        Rule: "OR('HealPointOrdererMSP.member')"
     OrdererEndpoints:
       - "orderer.healpoint.nl:7050"
-  
+
   - &HealPointPeer
     Name: HealPointPeer
     SkipAsForeign: false
@@ -104,18 +107,18 @@ Organizations:
     MSPDir: ../../.generated/crypto/peerOrganizations/healpoint.nl/msp
     Policies:
       Readers:
-          Type: Signature
-          Rule: "OR('HealPointPeerMSP.member')"
+        Type: Signature
+        Rule: "OR('HealPointPeerMSP.member')"
       Writers:
-          Type: Signature
-          Rule: "OR('HealPointPeerMSP.member')"
+        Type: Signature
+        Rule: "OR('HealPointPeerMSP.member')"
       Admins:
-          Type: Signature
-          Rule: "OR('HealPointPeerMSP.admin','HealPointOrdererMSP.admin')"
+        Type: Signature
+        Rule: "OR('HealPointPeerMSP.admin')"
       Endorsement:
-          Type: Signature
-          Rule: "OR('HealPointPeerMSP.member')"
-  
+        Type: Signature
+        Rule: "OR('HealPointPeerMSP.member')"
+
   - &LifeCareOrderer
     Name: LifeCareOrderer
     SkipAsForeign: false
@@ -124,16 +127,16 @@ Organizations:
     Policies:
       Readers:
         Type: Signature
-        Rule: "OR('LifeCareOrdererMSP.admin', 'LifeCareOrdererMSP.peer', 'LifeCareOrdererMSP.client')"
+        Rule: "OR('LifeCareOrdererMSP.member')"
       Writers:
         Type: Signature
-        Rule: "OR('LifeCareOrdererMSP.admin', 'LifeCareOrdererMSP.client')"
+        Rule: "OR('LifeCareOrdererMSP.member')"
       Admins:
         Type: Signature
         Rule: "OR('LifeCareOrdererMSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('LifeCareOrdererMSP.peer')"
+        Rule: "OR('LifeCareOrdererMSP.member')"
     OrdererEndpoints:
       - "orderer.lifecare.nl:7050"
 
@@ -144,17 +147,17 @@ Organizations:
     MSPDir: ../../.generated/crypto/peerOrganizations/lifecare.nl/msp
     Policies:
       Readers:
-          Type: Signature
-          Rule: "OR('LifeCarePeerMSP.member')"
+        Type: Signature
+        Rule: "OR('LifeCarePeerMSP.member')"
       Writers:
-          Type: Signature
-          Rule: "OR('LifeCarePeerMSP.member')"
+        Type: Signature
+        Rule: "OR('LifeCarePeerMSP.member')"
       Admins:
-          Type: Signature
-          Rule: "OR('LifeCarePeerMSP.admin','LifeCareOrdererMSP.admin')"
+        Type: Signature
+        Rule: "OR('LifeCarePeerMSP.admin')"
       Endorsement:
-          Type: Signature
-          Rule: "OR('LifeCarePeerMSP.member')"
+        Type: Signature
+        Rule: "OR('LifeCarePeerMSP.member')"
 
 Capabilities:
   Channel: &ChannelCapabilities
@@ -190,7 +193,7 @@ Application: &ApplicationDefaults
 
     event/Block: /Channel/Application/Readers
     event/FilteredBlock: /Channel/Application/Readers
-  
+
   Organizations:
 
   Policies: &ApplicationDefaultPolicies
@@ -208,8 +211,8 @@ Application: &ApplicationDefaults
       Rule: "ANY Writers"
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
-  
+      Rule: "ANY Admins" # Simplified; should use MAJORITY
+
   Capabilities:
     <<: *ApplicationCapabilities
 
@@ -272,26 +275,17 @@ Orderer: &OrdererDefaults
     <<: *OrdererCapabilities
 
 Channel: &ChannelDefaults
-  # Policies defines the set of policies at this level of the config tree
-  # For Channel policies, their canonical path is
-  #   /Channel/<PolicyName>
   Policies:
-    # Who may invoke the 'Deliver' API
     Readers:
       Type: ImplicitMeta
       Rule: "ANY Readers"
-    # Who may invoke the 'Broadcast' API
     Writers:
       Type: ImplicitMeta
       Rule: "ANY Writers"
-    # By default, who may modify elements at this config level
     Admins:
       Type: ImplicitMeta
       Rule: "MAJORITY Admins"
 
-  # Capabilities describes the channel level capabilities, see the
-  # dedicated Capabilities section elsewhere in this file for a full
-  # description
   Capabilities:
     <<: *ChannelCapabilities
 
@@ -312,7 +306,6 @@ Profiles:
           - *MediValePeer
           - *HealPointPeer
           - *LifeCarePeer
-
 
   MedTechChainChannel:
     <<: *ChannelDefaults

@@ -5,8 +5,8 @@ export CORE_PEER_ADDRESS=peer0.medtechchain.nl:7051
 
 echo "peer0.medtechchain.nl creates the channel"
 peer channel create \
-    -f /var/hyperledger/app-channel/medtechchain-channel.tx \
-    --outputBlock /var/hyperledger/app-channel/medtechchain.block \
+    -f /var/hyperledger/channel-artifacts/medtechchain-channel.tx \
+    --outputBlock /var/hyperledger/channel-artifacts/medtechchain.block \
     -o orderer.medtechchain.nl:7050 \
     --ordererTLSHostnameOverride orderer.medtechchain.nl \
     -c medtechchain \
@@ -15,7 +15,7 @@ peer channel create \
 
 echo "peer0.medtechchain.nl joins the channel"
 
-peer channel join -b /var/hyperledger/app-channel/medtechchain.block
+peer channel join -b /var/hyperledger/channel-artifacts/medtechchain.block
 
 peer channel getinfo -c medtechchain
 

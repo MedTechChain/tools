@@ -26,10 +26,5 @@ docker-compose-down "medtechchain"
 
 delete-docker-network "fabric-tools"
 delete-docker-network "internet"
-delete-docker-network "lifecare"
-delete-docker-network "healpoint"
-delete-docker-network "medivale"
-delete-docker-network "medtechchain"
-
 
 ./tools-cmd.sh "./clean.sh"
