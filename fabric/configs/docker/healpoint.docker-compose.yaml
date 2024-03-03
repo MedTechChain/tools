@@ -32,6 +32,7 @@ x-core-config-override: &core_config_override
 
 x-peer-defaults: &peer_defaults
     image: hyperledger/fabric-peer:$FABRIC_IMAGE_TAG
+    working_dir: /home/peer/scripts
     environment: &peer_env_vars
       FABRIC_CFG_PATH: /var/hyperledger/config
       FABRIC_LOGGING_SPEC: INFO
@@ -73,10 +74,26 @@ services:
       CORE_PEER_ID: peer0.healpoint.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.healpoint.nl:7051 peer2.healpoint.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer0.healpoint.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer0.healpoint.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/users/Admin@healpoint.nl/msp:/var/hyperledger/admin/msp
+
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+      
+      # blocks persistance
       - peer0.healpoint.nl:/var/hyperledger
 
   peer1.healpoint.nl:
@@ -87,10 +104,26 @@ services:
       CORE_PEER_ID: peer1.healpoint.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.nl:7051 peer2.healpoint.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer1.healpoint.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer1.healpoint.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/users/Admin@healpoint.nl/msp:/var/hyperledger/admin/msp
+      
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+
+      # blocks persistance
       - peer1.healpoint.nl:/var/hyperledger
 
   peer2.healpoint.nl:
@@ -101,10 +134,26 @@ services:
       CORE_PEER_ID: peer2.healpoint.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.healpoint.nl:7051 peer1.healpoint.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer2.healpoint.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/healpoint.nl/peers/peer2.healpoint.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/healpoint.nl/users/Admin@healpoint.nl/msp:/var/hyperledger/admin/msp
+      
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+    
+      # blocks persistance
       - peer2.healpoint.nl:/var/hyperledger
 
 volumes:
@@ -115,6 +164,7 @@ volumes:
 
 networks:
   healpoint:
+    external: true
     name: "healpoint"
   tools:
     external: true

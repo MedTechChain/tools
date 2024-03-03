@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FABRIC_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)/.."
+FABRIC_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)/../.."
 cd "$FABRIC_DIR"
 
 cryptogen generate --config=./configs/crypto/crypto-config.yaml --output ./.generated/crypto

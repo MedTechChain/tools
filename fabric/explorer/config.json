@@ -1,0 +1,9 @@
+{
+    "network-configs": {
+        "medtechchain-network": {
+            "name": "medtechchain-network",
+            "profile": "./connection-profile/medtechchain-network.json"
+        }
+    },
+    "license": "Apache-2.0"
+}

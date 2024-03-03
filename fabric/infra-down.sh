@@ -3,9 +3,6 @@
 FABRIC_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
 cd "$FABRIC_DIR"
 
-source fabric-version.env
-export FABRIC_IMAGE_TAG
-
 docker-compose-down() {
     docker-compose --project-directory $FABRIC_DIR -p "$1" \
         -f "./configs/docker/$1.docker-compose.yaml" \
@@ -18,6 +15,10 @@ delete-docker-network() {
     fi
 }
 
+cd ./explorer
+docker-compose down -v
+cd ..
+
 docker-compose-down "lifecare"
 docker-compose-down "healpoint"
 docker-compose-down "medivale"
@@ -25,6 +26,10 @@ docker-compose-down "medtechchain"
 
 delete-docker-network "fabric-tools"
 delete-docker-network "internet"
+delete-docker-network "lifecare"
+delete-docker-network "healpoint"
+delete-docker-network "medivale"
+delete-docker-network "medtechchain"
 
 
 ./tools-cmd.sh "./clean.sh"

@@ -7,7 +7,7 @@ if [ -z "$1" ]; then
     echo "Usage: ./tools-cmd.sh <CMD>"
 fi
 
-source fabric-version.env
+source .env
 
 CONTAINER_NAME="fabric-tools-cmd"
 NETWORK_NAME="fabric-tools"
@@ -24,7 +24,7 @@ docker run \
     --name "$CONTAINER_NAME" \
     --network "$NETWORK_NAME" \
     -v "$FABRIC_DIR:/home" \
-    -w "/home/scripts" \
+    -w "/home/scripts/tools" \
     "hyperledger/fabric-tools:$FABRIC_IMAGE_TAG" \
     bash -c "$1"
 

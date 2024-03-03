@@ -32,6 +32,7 @@ x-core-config-override: &core_config_override
 
 x-peer-defaults: &peer_defaults
     image: hyperledger/fabric-peer:$FABRIC_IMAGE_TAG
+    working_dir: /home/peer/scripts
     environment: &peer_env_vars
       FABRIC_CFG_PATH: /var/hyperledger/config
       FABRIC_LOGGING_SPEC: INFO
@@ -73,10 +74,26 @@ services:
       CORE_PEER_ID: peer0.medivale.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.medivale.nl:7051 peer2.medivale.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer0.medivale.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer0.medivale.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/medivale.nl/users/Admin@medivale.nl/msp:/var/hyperledger/admin/msp
+      
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+
+      # blocks persistance
       - peer0.medivale.nl:/var/hyperledger
 
   peer1.medivale.nl:
@@ -87,10 +104,26 @@ services:
       CORE_PEER_ID: peer1.medivale.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.nl:7051 peer2.medivale.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer1.medivale.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer1.medivale.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/medivale.nl/users/Admin@medivale.nl/msp:/var/hyperledger/admin/msp
+      
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+
+      # blocks persistance
       - peer1.medivale.nl:/var/hyperledger
 
   peer2.medivale.nl:
@@ -101,10 +134,26 @@ services:
       CORE_PEER_ID: peer2.medivale.nl
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.nl:7051 peer1.medivale.nl:7051"
     volumes:
+      # chaincode docker mount
       - /var/run/:/var/run/
+
+      # peer config
       - ./configs/nodes/peer:/var/hyperledger/config
+
+      # node msp & tls
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer2.medivale.nl/msp:/var/hyperledger/msp
       - ./.generated/crypto/peerOrganizations/medivale.nl/peers/peer2.medivale.nl/tls:/var/hyperledger/tls
+
+      # orderer tlscacert to create / join the channel
+      - ./.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+
+      # admin msp to create / join the channel
+      - ./.generated/crypto/peerOrganizations/medivale.nl/users/Admin@medivale.nl/msp:/var/hyperledger/admin/msp
+
+      # scripts
+      - ./scripts/peer:/home/peer/scripts
+
+      # blocks persistance
       - peer2.medivale.nl:/var/hyperledger
 
 volumes:
@@ -115,6 +164,7 @@ volumes:
 
 networks:
   medivale:
+    external: true
     name: "medivale"
   tools:
     external: true
