@@ -22,7 +22,7 @@ echo "Generate configurations and crypto material"
 ./tools-cmd.sh "./clean.sh; ./generate.sh"
 
 echo "Set up docker networks and run containers"
-for network in "fabric-tools" "internet"; do
+for network in "fabric-tools" "internet" "medtechchain" "medivale" "healpoint" "lifecare"; do
     create-docker-network "$network"
 done
 

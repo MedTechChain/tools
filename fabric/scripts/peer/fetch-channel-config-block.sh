@@ -10,7 +10,6 @@ SCRIPT_DIR="$(
 cd "$SCRIPT_DIR"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
-export CORE_PEER_ADDRESS="$1.$2:7051"
 
 echo "$1.$2 fetches the channel tx block"
 

@@ -11,7 +11,6 @@ CC_VERSION="$4"
 CC_SEQ="$5"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
-export CORE_PEER_ADDRESS="$1.$2:7051"
 
 CC_PACKAGE_ID="$(peer lifecycle chaincode queryinstalled | awk -F', ' '/Label: '"${CC_NAME}_${CC_VERSION}"'$/{ split($1, a, ": "); print a[2] }')"
 

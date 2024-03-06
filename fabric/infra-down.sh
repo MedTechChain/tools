@@ -22,12 +22,13 @@ cd ./explorer
 docker-compose down -v
 cd ..
 
-docker-compose-down "lifecare"
-docker-compose-down "healpoint"
-docker-compose-down "medivale"
-docker-compose-down "medtechchain"
-
-delete-docker-network "fabric-tools"
-delete-docker-network "internet"
+for network in "medtechchain" "medivale" "healpoint" "lifecare"; do
+    docker-compose-down "$network"
+done
 
 ./tools-cmd.sh "./clean.sh"
+
+for network in "fabric-tools" "internet" "medtechchain" "medivale" "healpoint" "lifecare"; do
+    delete-docker-network "$network"
+done
+

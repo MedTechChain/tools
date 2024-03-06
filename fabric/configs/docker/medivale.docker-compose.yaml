@@ -72,6 +72,7 @@ services:
     environment:
       <<: *peer_env_vars
       CORE_PEER_ID: peer0.medivale.nl
+      CORE_PEER_ADDRESS: "peer0.medivale.nl:7051"
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer1.medivale.nl:7051 peer2.medivale.nl:7051"
     volumes:
       # chaincode docker mount
@@ -108,6 +109,7 @@ services:
     environment:
       <<: *peer_env_vars
       CORE_PEER_ID: peer1.medivale.nl
+      CORE_PEER_ADDRESS: "peer1.medivale.nl:7051"
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.nl:7051 peer2.medivale.nl:7051"
     volumes:
       # chaincode docker mount
@@ -144,6 +146,9 @@ services:
     environment:
       <<: *peer_env_vars
       CORE_PEER_ID: peer2.medivale.nl
+      CORE_PEER_ADDRESS: "peer2.medivale.nl:7051"
+      CORE_PEER_CHAINCODEADDRESS: "peer2.medivale.nl:7052"
+      CORE_PEER_CHAINCODELISTENADDRESS: "0.0.0.0:7052"
       CORE_PEER_GOSSIP_BOOTSTRAP: "peer0.medivale.nl:7051 peer1.medivale.nl:7051"
       CORE_PEER_GOSSIP_EXTERNALENDPOINT: "peer2.medivale.nl:7051"
     volumes:
@@ -187,6 +192,7 @@ volumes:
 
 networks:
   medivale:
+    external: true
     name: "medivale"
   tools:
     external: true

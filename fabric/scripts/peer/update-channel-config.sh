@@ -10,7 +10,6 @@ SCRIPT_DIR="$(
 cd "$SCRIPT_DIR"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
-export CORE_PEER_ADDRESS="$1.$2:7051"
 
 echo "$1.$2 updates the channel config"
 peer channel signconfigtx -f "/var/hyperledger/channel-artifacts/config_update_in_envelope.pb"
