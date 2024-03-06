@@ -27,12 +27,7 @@ fi
 
 cd "$CC_SRC_PATH"
 
-./gradlew installDist
-
-if [ ! -d "./build/install" ]; then
-    echo "Error: Chaincode build failed"
-    exit 3
-fi
+./gradlew shadowJar -x test
 
 cd "$FABRIC_DIR"
 
@@ -40,7 +35,9 @@ CC_NAME=medtechchain
 CC_VERSION=0.0.1
 
 rm -rf "./.generated/cc-src/$CC_NAME"
-cp -r "$CC_SRC_PATH/build/install/$CC_NAME" "./.generated/cc-src/"
+cp -r "$CC_SRC_PATH/build/libs" "./.generated/cc-src/$CC_NAME"
+
+sleep 1
 
 docker exec "peer2.medtechchain.nl" bash -c "./cc-package.sh $CC_NAME $CC_VERSION"
 

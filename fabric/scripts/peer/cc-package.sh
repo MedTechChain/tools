@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# $1 = peer id, e.g. peer1
-# $2 = domain, e.g. medtechchain.nl
-
 CC_NAME="$1"
 CC_VERSION="$2"
 

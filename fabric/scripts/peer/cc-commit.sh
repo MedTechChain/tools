@@ -33,4 +33,4 @@ peer chaincode invoke \
     -o orderer.medtechchain.nl:7050 --ordererTLSHostnameOverride orderer.medtechchain.nl \
     --tls --cafile /var/hyperledger/orderer-tlscacert/tlsca.medtechchain.nl-cert.pem \
     -n "medtechchain" \
-    -c '{"function":"medtechchain:CreateWatch","Args":["cf5a27f6-3875-46b6-a08f-4a842c3de7da","v0.0.3"]}'
+    -c '{"Args":["medtechchain:CreateWatch", "cf5a27f6-3875-46b6-a08f-4a842c3de7da","v0.0.3"]}'
