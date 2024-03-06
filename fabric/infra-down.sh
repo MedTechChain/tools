@@ -1,10 +1,13 @@
 #!/bin/bash
 
-FABRIC_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+FABRIC_DIR="$(
+    cd -- "$(dirname "$0")" >/dev/null 2>&1
+    pwd -P
+)"
 cd "$FABRIC_DIR"
 
 docker-compose-down() {
-    docker-compose --project-directory $FABRIC_DIR -p "$1" \
+    docker-compose --project-directory "$FABRIC_DIR" -p "$1" \
         -f "./configs/docker/$1.docker-compose.yaml" \
         down -v
 }

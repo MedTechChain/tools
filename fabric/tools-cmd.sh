@@ -1,6 +1,9 @@
 #!/bin/bash
 
-FABRIC_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+FABRIC_DIR="$(
+    cd -- "$(dirname "$0")" >/dev/null 2>&1
+    pwd -P
+)"
 cd "$FABRIC_DIR"
 
 if [ -z "$1" ]; then
@@ -11,7 +14,6 @@ source .env
 
 CONTAINER_NAME="fabric-tools-cmd"
 NETWORK_NAME="fabric-tools"
-
 
 # Connect the container to the network later used
 # by the Hyperledger nodes (docker-compose uses this
@@ -28,4 +30,4 @@ docker run \
     "hyperledger/fabric-tools:$FABRIC_IMAGE_TAG" \
     bash -c "$1"
 
-docker rm "$CONTAINER_NAME" > /dev/null 2>&1
+docker rm "$CONTAINER_NAME" >/dev/null 2>&1

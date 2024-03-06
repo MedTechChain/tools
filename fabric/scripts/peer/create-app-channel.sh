@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
-export CORE_PEER_ADDRESS=peer0.medtechchain.nl:7051 
+export CORE_PEER_ADDRESS=peer0.medtechchain.nl:7051
 
 echo "peer0.medtechchain.nl creates the channel"
 peer channel create \

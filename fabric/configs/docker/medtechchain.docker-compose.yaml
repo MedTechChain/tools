@@ -92,6 +92,9 @@ services:
 
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/users/Admin@medtechchain.nl/msp:/var/hyperledger/admin/msp
+
+      # Chaincode sources
+      - ./.generated/cc-src:/var/hyperledger/cc-src
       
       # scripts
       - ./scripts/peer:/home/peer/scripts

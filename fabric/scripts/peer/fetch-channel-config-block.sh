@@ -3,7 +3,10 @@
 # $1 = peer id, e.g. peer1
 # $2 = domain, e.g. medtechchain.nl
 
-SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+SCRIPT_DIR="$(
+    cd -- "$(dirname "$0")" >/dev/null 2>&1
+    pwd -P
+)"
 cd "$SCRIPT_DIR"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
