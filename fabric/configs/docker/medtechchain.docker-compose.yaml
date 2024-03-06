@@ -93,8 +93,11 @@ services:
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/users/Admin@medtechchain.nl/msp:/var/hyperledger/admin/msp
 
-      # Chaincode sources
+      # Chaincode sources (only peer0.medtechchain.nl packs the sources)
       - ./.generated/cc-src:/var/hyperledger/cc-src
+
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
       
       # scripts
       - ./scripts/peer:/home/peer/scripts
@@ -128,6 +131,9 @@ services:
 
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/users/Admin@medtechchain.nl/msp:/var/hyperledger/admin/msp
+
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
 
       # scripts
       - ./scripts/peer:/home/peer/scripts
@@ -163,6 +169,9 @@ services:
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/medtechchain.nl/users/Admin@medtechchain.nl/msp:/var/hyperledger/admin/msp
       
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
+
       # scripts
       - ./scripts/peer:/home/peer/scripts
 

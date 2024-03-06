@@ -36,10 +36,22 @@ fi
 
 cd "$FABRIC_DIR"
 
-CC_NAME=nl.medtechchain.chaincode
+CC_NAME=medtechchain
 CC_VERSION=0.0.1
 
 rm -rf "./.generated/cc-src/$CC_NAME"
 cp -r "$CC_SRC_PATH/build/install/$CC_NAME" "./.generated/cc-src/"
 
 docker exec "peer0.medtechchain.nl" bash -c "./cc-package.sh $CC_NAME $CC_VERSION"
+
+for domain in "medtechchain.nl" "medivale.nl" "healpoint.nl" "lifecare.nl"; do
+    for peer in "peer0"; do # not enough resources to intall on all peers
+        docker exec "$peer.$domain" bash -c "./cc-install.sh $peer $domain $CC_NAME $CC_VERSION"
+    done
+done
+
+for domain in "medtechchain.nl" "medivale.nl" "healpoint.nl" "lifecare.nl"; do
+    docker exec "peer0.$domain" bash -c "./cc-approve.sh peer0 $domain $CC_NAME $CC_VERSION 1"
+done
+
+docker exec "peer0.medtechchain.nl" bash -c "./cc-commit.sh $CC_NAME $CC_VERSION 1"

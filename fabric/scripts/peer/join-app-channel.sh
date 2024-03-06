@@ -9,11 +9,9 @@ export CORE_PEER_ADDRESS="$1.$2:7051"
 echo "$1.$2 fetches the channel tx block"
 mkdir -p "/var/hyperledger/channel-artifacts"
 peer channel fetch 0 "/var/hyperledger/channel-artifacts/medtechchain.block" \
-    -o "orderer.$2:7050" \
-    --ordererTLSHostnameOverride "orderer.$2" \
     -c medtechchain \
-    --tls \
-    --cafile "/var/hyperledger/orderer-tlscacert/tlsca.$2-cert.pem"
+    -o "orderer.$2:7050" --ordererTLSHostnameOverride "orderer.$2" \
+    --tls --cafile "/var/hyperledger/orderer-tlscacert/tlsca.$2-cert.pem"
 
 echo "$1.$2 joins the channel"
 peer channel join -b /var/hyperledger/channel-artifacts/medtechchain.block

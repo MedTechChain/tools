@@ -92,6 +92,9 @@ services:
 
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/lifecare.nl/users/Admin@lifecare.nl/msp:/var/hyperledger/admin/msp
+
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
       
       # scripts
       - ./scripts/peer:/home/peer/scripts
@@ -126,6 +129,9 @@ services:
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/lifecare.nl/users/Admin@lifecare.nl/msp:/var/hyperledger/admin/msp
       
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
+
       # scripts
       - ./scripts/peer:/home/peer/scripts
 
@@ -160,6 +166,9 @@ services:
       # admin msp to create / join the channel
       - ./.generated/crypto/peerOrganizations/lifecare.nl/users/Admin@lifecare.nl/msp:/var/hyperledger/admin/msp
       
+      # Chaincode package
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
+
       # scripts
       - ./scripts/peer:/home/peer/scripts
 

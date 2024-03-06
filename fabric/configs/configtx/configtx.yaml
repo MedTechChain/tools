@@ -199,10 +199,10 @@ Application: &ApplicationDefaults
   Policies: &ApplicationDefaultPolicies
     LifecycleEndorsement:
       Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
+      Rule: "ANY Endorsement"  # Simplified; should use MAJORITY
     Endorsement:
       Type: ImplicitMeta
-      Rule: "MAJORITY Endorsement"
+      Rule: "ANY Endorsement"  # Simplified; should use MAJORITY
     Readers:
       Type: ImplicitMeta
       Rule: "ANY Readers"
@@ -266,7 +266,7 @@ Orderer: &OrdererDefaults
       Rule: "ANY Writers"
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
+      Rule: "ANY Admins"  # Simplified; should use MAJORITY
     BlockValidation:
       Type: ImplicitMeta
       Rule: "ANY Writers"
@@ -284,7 +284,7 @@ Channel: &ChannelDefaults
       Rule: "ANY Writers"
     Admins:
       Type: ImplicitMeta
-      Rule: "MAJORITY Admins"
+      Rule: "ANY Admins"  # Simplified; should use MAJORITY
 
   Capabilities:
     <<: *ChannelCapabilities

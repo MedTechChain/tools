@@ -17,7 +17,5 @@ peer channel signconfigtx -f "/var/hyperledger/channel-artifacts/config_update_i
 
 peer channel update -f "/var/hyperledger/channel-artifacts/config_update_in_envelope.pb" \
     -c medtechchain \
-    -o "orderer.$2:7050" \
-    --ordererTLSHostnameOverride "orderer.$2" \
-    --tls \
-    --cafile "/var/hyperledger/orderer-tlscacert/tlsca.$2-cert.pem"
+    -o "orderer.$2:7050" --ordererTLSHostnameOverride "orderer.$2" \
+    --tls --cafile "/var/hyperledger/orderer-tlscacert/tlsca.$2-cert.pem"
