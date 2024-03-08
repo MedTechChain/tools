@@ -1,29 +1,13 @@
 #!/bin/bash
 
-FABRIC_DIR="$(
-    cd -- "$(dirname "$0")" >/dev/null 2>&1
-    pwd -P
-)"
-cd "$FABRIC_DIR"
+SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+cd "$SCRIPT_DIR"
 
-source .env
+FABRIC_DIR="$SCRIPT_DIR"
 
-CONTAINER_NAME="fabric-tools"
-NETWORK_NAME="fabric-tools"
+# load configuration
+source "$FABRIC_DIR/.env"
+export FABRIC_IMAGE_TAG
 
-# Connect the container to the network later used
-# by the Hyperledger nodes (docker-compose uses this
-# external network)
-if [ ! "$(docker network ls | grep "$NETWORK_NAME")" ]; then
-    docker network create --driver bridge "$NETWORK_NAME"
-fi
-
-docker run -it \
-    --name "$CONTAINER_NAME" \
-    --network "$NETWORK_NAME" \
-    -v "$FABRIC_DIR:/home" \
-    -w "/home/scripts/tools" \
-    "hyperledger/fabric-tools:$FABRIC_IMAGE_TAG" \
-    bash
-
-docker rm "$CONTAINER_NAME" >/dev/null 2>&1
+cd "$FABRIC_DIR/scripts"
+./tools-cmd.sh bash

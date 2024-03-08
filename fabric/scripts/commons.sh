@@ -1,0 +1,32 @@
+#!/bin/bash
+
+################ COMMONS: DOMAINS & CONFIGS ################
+ORG_NAMES=("medtechchain" "medivale" "healpoint" "lifecare")
+
+declare -A ORG_DOMAINS
+declare -A ORG_ORDERER_LOCALMSPIDS
+declare -A ORG_PEER_LOCALMSPIDS
+
+for NAME in ${ORG_NAMES[@]}; do
+    ORG_DOMAINS[$NAME]="$NAME.nl" 
+done
+
+ORG_ORDERER_LOCALMSPIDS[${ORG_NAMES[0]}]="MedTechChainOrdererMSP"
+ORG_PEER_LOCALMSPIDS[${ORG_NAMES[0]}]="MedTechChainPeerMSP"
+
+ORG_ORDERER_LOCALMSPIDS[${ORG_NAMES[1]}]="MediValeOrdererMSP"
+ORG_PEER_LOCALMSPIDS[${ORG_NAMES[1]}]="MediValePeerMSP"
+
+ORG_ORDERER_LOCALMSPIDS[${ORG_NAMES[2]}]="HealPointOrdererMSP"
+ORG_PEER_LOCALMSPIDS[${ORG_NAMES[2]}]="HealPointPeerMSP"
+
+ORG_ORDERER_LOCALMSPIDS[${ORG_NAMES[3]}]="LifeCareOrdererMSP"
+ORG_PEER_LOCALMSPIDS[${ORG_NAMES[3]}]="LifeCarePeerMSP"
+
+GLOBAL_NETWORK="global_network"
+DOCKER_NETWORKS=("$GLOBAL_NETWORK" "${ORG_NAMES[@]}")
+
+CHANNEL_ID="medtechchain"
+APP_CHANNEL_PROFILE_NAME="MedTechChainChannel"
+
+INIT_PEER=peer.${ORG_DOMAINS[0]}

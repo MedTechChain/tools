@@ -1,10 +1,9 @@
 #!/bin/bash
 
-FABRIC_DIR="$(
-    cd -- "$(dirname "$0")" >/dev/null 2>&1
-    pwd -P
-)"
-cd "$FABRIC_DIR"
+SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+cd "$SCRIPT_DIR"
+
+FABRIC_DIR="$SCRIPT_DIR"
 
 DEV_TOOLS_DIR="$FABRIC_DIR/.."
 

@@ -20,32 +20,32 @@ PeerOrgs:
   - Name: MedTechChain
     Domain: medtechchain.nl
     EnableNodeOUs: false
-    Template:
-      Count: 3
+    Specs:
+      - Hostname: peer
     Users:
       Count: 1
 
   - Name: MediVale
     Domain: medivale.nl
     EnableNodeOUs: false
-    Template:
-      Count: 3
+    Specs:
+      - Hostname: peer
     Users:
       Count: 1
 
   - Name: HealPoint
     Domain: healpoint.nl
     EnableNodeOUs: false
-    Template:
-      Count: 3
+    Specs:
+      - Hostname: peer
     Users:
       Count: 1
 
   - Name: LifeCare
     Domain: lifecare.nl
     EnableNodeOUs: false
-    Template:
-      Count: 3
+    Specs:
+      - Hostname: peer
     Users:
       Count: 1
 
