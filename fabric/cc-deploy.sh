@@ -3,7 +3,11 @@
 SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 cd "$SCRIPT_DIR"
 
+# Changes when the script is moved
 FABRIC_DIR="$SCRIPT_DIR"
+
+source "$FABRIC_DIR/scripts/commons.sh"
+source "$FABRIC_DIR/.env"
 
 DEV_TOOLS_DIR="$FABRIC_DIR/.."
 
@@ -30,26 +34,30 @@ cd "$CC_SRC_PATH"
 
 cd "$FABRIC_DIR"
 
-CC_NAME=medtechchain
-CC_VERSION=0.0.1
+GEN_DIR="./.generated"
 
-rm -rf "./.generated/cc-src/$CC_NAME"
-cp -r "$CC_SRC_PATH/build/libs" "./.generated/cc-src/$CC_NAME"
+GEN_CC_PKG_DIR="$GEN_DIR/cc-pkg"
+GEN_CC_SRC_DIR="$GEN_DIR/cc-src"
+
+rm -rf "$GEN_CC_SRC_DIR/$CC_NAME"
+cp -r "$CC_SRC_PATH/build/libs" "$GEN_CC_SRC_DIR/$CC_NAME"
 
 sleep 1
 
-docker exec "peer2.medtechchain.nl" bash -c "./cc-package.sh $CC_NAME $CC_VERSION"
+docker exec "$INIT_PEER_ID" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
 
-for domain in "medtechchain.nl" "medivale.nl" "healpoint.nl" "lifecare.nl"; do
-    for peer in "peer2"; do # not enough resources to intall on all peers
-        docker exec "$peer.$domain" bash -c "./cc-install.sh $peer $domain $CC_NAME $CC_VERSION"
+for peer_id in ${ORG_PEER_IDS[@]}; do
+    docker exec "$peer_id" bash -c "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+done
+
+for name in ${ORG_NAMES[@]}; do
+    ORG_DOMAIN=${ORG_DOMAINS[$name]}
+    ORG_ORDERER_ID=${ORG_ORDERER_IDS[$name,0]}
+
+    for i in $(seq 0 $((NUM_OF_PEERS - 1))); do
+        ORG_PEER_ID=${ORG_ANCHOR_PEER_IDS[$name,$i]}
+        docker exec "$ORG_PEER_ID" bash -c "./chaincode/cc-approve.sh $ORG_DOMAIN $ORG_ORDERER_ID $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
     done
 done
 
-for domain in "medtechchain.nl" "medivale.nl" "healpoint.nl" "lifecare.nl"; do
-    for peer in "peer2"; do # not enough resources to intall on all peers
-        docker exec "$peer.$domain" bash -c "./cc-approve.sh $peer $domain $CC_NAME $CC_VERSION 1"
-    done
-done
-
-docker exec "peer2.medtechchain.nl" bash -c "./cc-commit.sh $CC_NAME $CC_VERSION 1"
+docker exec "$INIT_PEER_ID" bash -c "./chaincode/cc-commit.sh $INIT_ORG_DOMAIN $INIT_ORDERER_ID $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"

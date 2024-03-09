@@ -42,7 +42,7 @@ services:
       - ./.generated/crypto/ordererOrganizations/${ORG_DOMAIN}/orderers/${ORG_ORDERER_ID}/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
       - peer:/var/hyperledger
     ports:
-      - ${CHAINCODE_HOST_PORT}:7052
+      - ${CHAINCODE_HOST_PORT:-7052}:7052
     networks:
       - org_network
       - global_network

@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# $1 = peer id, e.g. peer1
-# $2 = domain, e.g. medtechchain.nl
-# $3 = CC_NAME
-# $4 = CC_VERSION
-
-CC_NAME="$3"
-CC_VERSION="$4"
+CC_NAME="$1"
+CC_VERSION="$2"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
 

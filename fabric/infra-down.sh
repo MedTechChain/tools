@@ -32,7 +32,7 @@ function org_down {
         --file "$FABRIC_DIR/configs/docker/orderer.docker-compose.yaml" \
         --file "$FABRIC_DIR/configs/docker/peer.docker-compose.yaml" \
         --project-name "$ORG_NAME" \
-        down -v 2>/dev/null
+        down -v
 }
 
 for NAME in ${ORG_NAMES[@]}; do
