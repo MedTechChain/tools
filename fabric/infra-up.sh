@@ -145,6 +145,7 @@ function set_peer_env_vars {
     ORG_DOMAIN=${ORG_DOMAINS[$name]}
     ORG_NETWORK=$name
     CHAINCODE_HOST_PORT=${CHAINCODE_HOST_PORTS[$ORG_PEER_ID]}
+    PEER_HOST_PORT=${PEER_HOST_PORTS[$ORG_PEER_ID]}
 
     export ORG_NAME
     export ORG_PEER_ID
@@ -153,6 +154,7 @@ function set_peer_env_vars {
     export ORG_DOMAIN
     export ORG_NETWORK
     export CHAINCODE_HOST_PORT
+    export PEER_HOST_PORT
 }
 
 function create_orderer {

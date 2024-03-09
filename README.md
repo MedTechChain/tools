@@ -31,13 +31,16 @@ The `scripts` folder is mounted in these containers. These scripts perform comma
 2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `dev-tools` repo folder. When you deploy a new version, it is better to recreate the infrastructure.
 
 ### Application Development - Port Mapping
-To enable the development of applications, the chaincode ports are published on host as follows:
-
-* `peer0.medtechchain.nl` - localhost:10052
-* `peer0.medivale.nl` - localhost:9052
-* `peer0.healpoint.nl` - localhost:8052
-* `peer0.lifecare.nl` - localhost:11052
-
+* **Chaincode ports**:
+    * `peer0.medtechchain.nl` - localhost:10052
+    * `peer0.medivale.nl` - localhost:9052
+    * `peer0.healpoint.nl` - localhost:8052
+    * `peer0.lifecare.nl` - localhost:11052
+* **Peer ports**:
+    * `peer0.medtechchain.nl` - localhost:10051
+    * `peer0.medivale.nl` - localhost:9051
+    * `peer0.healpoint.nl` - localhost:8051
+    * `peer0.lifecare.nl` - localhost:11051
 
 ### Chaincode Development - Chaincode as a Service
 TODO: Coming soon
