@@ -18,7 +18,7 @@ Organizations:
         Type: Signature
         Rule: "OR('MedTechChainOrdererMSP.member')"
     OrdererEndpoints:
-      - "orderer.medtechchain.nl:7050"
+      - "orderer0.medtechchain.nl:7050"
 
   - &MedTechChainPeer
     Name: MedTechChainPeer
@@ -58,7 +58,7 @@ Organizations:
         Type: Signature
         Rule: "OR('MediValeOrdererMSP.member')"
     OrdererEndpoints:
-      - "orderer.medivale.nl:7050"
+      - "orderer0.medivale.nl:7050"
 
   - &MediValePeer
     Name: MediValePeer
@@ -98,7 +98,7 @@ Organizations:
         Type: Signature
         Rule: "OR('HealPointOrdererMSP.member')"
     OrdererEndpoints:
-      - "orderer.healpoint.nl:7050"
+      - "orderer0.healpoint.nl:7050"
 
   - &HealPointPeer
     Name: HealPointPeer
@@ -138,7 +138,7 @@ Organizations:
         Type: Signature
         Rule: "OR('LifeCareOrdererMSP.member')"
     OrdererEndpoints:
-      - "orderer.lifecare.nl:7050"
+      - "orderer0.lifecare.nl:7050"
 
   - &LifeCarePeer
     Name: LifeCarePeer
@@ -231,22 +231,22 @@ Orderer: &OrdererDefaults
 
   EtcdRaft:
     Consenters:
-      - Host: orderer.medtechchain.nl
+      - Host: orderer0.medtechchain.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer.medtechchain.nl/tls/server.crt
-      - Host: orderer.medivale.nl
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer0.medtechchain.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medtechchain.nl/orderers/orderer0.medtechchain.nl/tls/server.crt
+      - Host: orderer0.medivale.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer.medivale.nl/tls/server.crt
-      - Host: orderer.healpoint.nl
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer0.medivale.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/medivale.nl/orderers/orderer0.medivale.nl/tls/server.crt
+      - Host: orderer0.healpoint.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer.healpoint.nl/tls/server.crt
-      - Host: orderer.lifecare.nl
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer0.healpoint.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/healpoint.nl/orderers/orderer0.healpoint.nl/tls/server.crt
+      - Host: orderer0.lifecare.nl
         Port: 7050
-        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/tls/server.crt
-        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer.lifecare.nl/tls/server.crt
+        ClientTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer0.lifecare.nl/tls/server.crt
+        ServerTLSCert: ../../.generated/crypto/ordererOrganizations/lifecare.nl/orderers/orderer0.lifecare.nl/tls/server.crt
 
     Options:
       TickInterval: 500ms

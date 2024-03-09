@@ -57,4 +57,4 @@ networks:
     name: "blockchain-explorer"  
   internet:
     external: true
-    name: "internet"
+    name: "global_network"

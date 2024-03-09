@@ -17,23 +17,26 @@ source "$FABRIC_DIR/.env"
 export FABRIC_IMAGE_TAG
 
 #################################################
+echo "Stop Explorer..."
+pushd "$FABRIC_DIR/explorer"
+docker-compose down -v
+popd
+
+#################################################
 echo "Remove docker containers"
 
 function org_down {
-    export ORG_NAME="$1"
-    export ORG_DOMAIN="$2"
-    export ORG_ORDERER_LOCALMSPID="$3"
-    export ORG_PEER_LOCALMSPID="$4"
-
+    ORG_NAME="$1"
     docker-compose \
         --project-directory "$FABRIC_DIR" \
-        --file "$FABRIC_DIR/configs/docker/base.docker-compose.yaml" \
+        --file "$FABRIC_DIR/configs/docker/orderer.docker-compose.yaml" \
+        --file "$FABRIC_DIR/configs/docker/peer.docker-compose.yaml" \
         --project-name "$ORG_NAME" \
-        down -v
+        down -v 2>/dev/null
 }
 
 for NAME in ${ORG_NAMES[@]}; do
-    org_down "$NAME" ${ORG_DOMAINS[$NAME]} ${ORG_ORDERER_LOCALMSPIDS[$NAME]} ${ORG_PEER_LOCALMSPIDS[$NAME]}
+    org_down "$NAME"
 done
 
 #################################################

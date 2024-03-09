@@ -1,0 +1,59 @@
+version: '3.8'
+
+
+services:
+  peer:
+    container_name: ${ORG_PEER_ID}
+    image: hyperledger/fabric-peer:${FABRIC_IMAGE_TAG}
+    command: peer node start
+    working_dir: /home/peer/scripts
+    environment:
+      FABRIC_CFG_PATH: /var/hyperledger/config
+      FABRIC_LOGGING_SPEC: INFO
+      
+      CORE_PEER_ID: ${ORG_PEER_ID}
+      CORE_PEER_ADDRESS: ${ORG_PEER_ID}:7051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: ${ORG_PEER_ID}:7051
+      CORE_PEER_CHAINCODEADDRESS: ${ORG_PEER_ID}:7052
+      CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:7052
+      CORE_PEER_NETWORKID: ${ORG_NETWORK}
+      CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE: ${ORG_NETWORK}
+
+      CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
+      CORE_PEER_LOCALMSPID: ${ORG_PEER_LOCALMSPID}
+
+      CORE_PEER_TLS_ENABLED: "true"
+      CORE_PEER_TLS_CERT_FILE: /var/hyperledger/tls/server.crt
+      CORE_PEER_TLS_KEY_FILE: /var/hyperledger/tls/server.key
+      CORE_PEER_TLS_ROOTCERT_FILE: /var/hyperledger/tls/ca.crt
+
+      CORE_PEER_GOSSIP_USELEADERELECTION: "false"
+      CORE_PEER_GOSSIP_ORGLEADER: "true"
+    volumes:
+      - /var/run/:/var/run/
+      - ./scripts/peer:/home/peer/scripts
+      - ./configs/nodes/core.yaml:/var/hyperledger/config/core.yaml
+      - ./.generated/cc-src:/var/hyperledger/cc-src
+      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
+      - ./.generated/artifacts/channel/peer:/var/hyperledger/artifacts/channel/peer
+      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/peers/${ORG_PEER_ID}/msp:/var/hyperledger/msp
+      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/peers/${ORG_PEER_ID}/tls:/var/hyperledger/tls
+      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/users/Admin@${ORG_DOMAIN}/msp:/var/hyperledger/admin/msp
+      - ./.generated/crypto/ordererOrganizations/${ORG_DOMAIN}/orderers/${ORG_ORDERER_ID}/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+      - peer:/var/hyperledger
+    ports:
+      - ${CHAINCODE_HOST_PORT}:7052
+    networks:
+      - org_network
+      - global_network
+
+volumes:
+  peer:
+
+networks:
+  org_network:
+    external: true
+    name: ${ORG_NETWORK}
+  global_network:
+    external: true
+    name: global_network
