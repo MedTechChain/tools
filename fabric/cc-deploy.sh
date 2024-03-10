@@ -36,6 +36,11 @@ echo -e "\xE2\x9C\x94 >>> BUILD CHAINCODE <<<"
 
 ./gradlew shadowJar -x test
 
+if [ $? -ne 0 ]; then
+    echo ">>> ERROR: chaincode build failed with status $?"
+    exit 1
+fi
+
 cd "$FABRIC_DIR_PATH"
 
 rm -rf "$GEN_CHAINCODE_SOURCE_PATH/$CC_NAME"
