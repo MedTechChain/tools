@@ -16,6 +16,8 @@ We will use docker for Fabric, i.e., will not install any binaries.
 Designed for:
 * `OS`: Ubuntu
 * `Containerization`: Docker Desktop
+* `Interpeter`: Bash v4+
+* `Java`: v17+
 
 ### Hyperledger Fabric - Tools
 
@@ -31,15 +33,10 @@ The `scripts` folder is mounted in these containers. These scripts perform comma
 2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `dev-tools` repo folder. When you deploy a new version, it is better to recreate the infrastructure.
 
 ### Application Development - Port Mapping
-* **Chaincode ports**:
-    * `peer0.medtechchain.nl` - localhost:10052
-    * `peer0.medivale.nl` - localhost:9052
-    * `peer0.healpoint.nl` - localhost:8052
-    * `peer0.lifecare.nl` - localhost:11052
 * **Peer ports**:
-    * `peer0.medtechchain.nl` - localhost:10051
+    * `peer0.medtechchain.nl` - localhost:8051
     * `peer0.medivale.nl` - localhost:9051
-    * `peer0.healpoint.nl` - localhost:8051
+    * `peer0.healpoint.nl` - localhost:10051
     * `peer0.lifecare.nl` - localhost:11051
 
 ### Chaincode Development - Chaincode as a Service
@@ -54,6 +51,7 @@ TODO: Coming soon
 ```
 sudo chown -R ${USER}:${USER} <PATH_TO_.GENERATED>
 ```
+Another alternative is to run the script as root.
 
 2. `Explorer not available`: Sometimes Explorer does not work, though the container is running. This is because the image is badly design, and we cannot change it, making the container to remain alive even when the server itself dies within the container. To fix this, restart the container:
 ```

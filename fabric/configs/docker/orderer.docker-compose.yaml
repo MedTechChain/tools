@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   orderer:
-    container_name: ${ORG_ORDERER_ID}
+    container_name: ${ORDERER_ADDRESS}
     image: hyperledger/fabric-orderer:${FABRIC_IMAGE_TAG}
     command: orderer
     environment:
@@ -11,20 +11,20 @@ services:
 
       ORDERER_GENERAL_LISTENADDRESS: 0.0.0.0
       ORDERER_GENERAL_BOOTSTRAPMETHOD: file
-      ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/medtechchain-genesis.block  
+      ORDERER_GENERAL_BOOTSTRAPFILE: /var/hyperledger/genesis/genesis.block  
 
       ORDERER_GENERAL_LOCALMSPDIR: /var/hyperledger/msp
-      ORDERER_GENERAL_LOCALMSPID: ${ORG_ORDERER_LOCALMSPID}
+      ORDERER_GENERAL_LOCALMSPID: ${ORDERER_LOCALMSPID}
 
       ORDERER_GENERAL_TLS_ENABLED: "true"
       ORDERER_GENERAL_TLS_PRIVATEKEY: /var/hyperledger/tls/server.key
       ORDERER_GENERAL_TLS_CERTIFICATE: /var/hyperledger/tls/server.crt
       ORDERER_GENERAL_TLS_ROOTCAS: "[/var/hyperledger/tls/ca.crt]" 
     volumes:
-    - ./configs/nodes/orderer.yaml:/var/hyperledger/config/orderer.yaml
-    - ./.generated/artifacts/genesis:/var/hyperledger/genesis
-    - ./.generated/crypto/ordererOrganizations/${ORG_DOMAIN}/orderers/${ORG_ORDERER_ID}/msp:/var/hyperledger/msp
-    - ./.generated/crypto/ordererOrganizations/${ORG_DOMAIN}/orderers/${ORG_ORDERER_ID}/tls:/var/hyperledger/tls
+    - ${CONFIG_ORDERER_CONFIG_FILE_PATH}:/var/hyperledger/config/orderer.yaml
+    - ${GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH}:/var/hyperledger/genesis/genesis.block
+    - ${GEN_ORDERER_CRYPTOPATH}/msp:/var/hyperledger/msp
+    - ${GEN_ORDERER_CRYPTOPATH}/tls:/var/hyperledger/tls
     - orderer:/var/ledger
     networks:
       - org_network
@@ -39,4 +39,4 @@ networks:
     name: ${ORG_NETWORK}
   global_network:
     external: true
-    name: global_network
+    name: ${GLOBAL_NETWORK}

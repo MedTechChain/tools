@@ -1,9 +1,8 @@
 version: '3.8'
 
-
 services:
   peer:
-    container_name: ${ORG_PEER_ID}
+    container_name: ${PEER_ADDRESS}
     image: hyperledger/fabric-peer:${FABRIC_IMAGE_TAG}
     command: peer node start
     working_dir: /home/peer/scripts
@@ -11,16 +10,16 @@ services:
       FABRIC_CFG_PATH: /var/hyperledger/config
       FABRIC_LOGGING_SPEC: INFO
       
-      CORE_PEER_ID: ${ORG_PEER_ID}
-      CORE_PEER_ADDRESS: ${ORG_PEER_ID}:7051
-      CORE_PEER_GOSSIP_EXTERNALENDPOINT: ${ORG_PEER_ID}:7051
-      CORE_PEER_CHAINCODEADDRESS: ${ORG_PEER_ID}:7052
+      CORE_PEER_ID: ${PEER_ADDRESS}
+      CORE_PEER_ADDRESS: ${PEER_ADDRESS}:7051
+      CORE_PEER_GOSSIP_EXTERNALENDPOINT: ${PEER_ADDRESS}:7051
+      CORE_PEER_CHAINCODEADDRESS: ${PEER_ADDRESS}:7052
       CORE_PEER_CHAINCODELISTENADDRESS: 0.0.0.0:7052
       CORE_PEER_NETWORKID: ${ORG_NETWORK}
       CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE: ${ORG_NETWORK}
 
       CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
-      CORE_PEER_LOCALMSPID: ${ORG_PEER_LOCALMSPID}
+      CORE_PEER_LOCALMSPID: ${PEER_LOCALMSPID}
 
       CORE_PEER_TLS_ENABLED: "true"
       CORE_PEER_TLS_CERT_FILE: /var/hyperledger/tls/server.crt
@@ -29,21 +28,22 @@ services:
 
       CORE_PEER_GOSSIP_USELEADERELECTION: "false"
       CORE_PEER_GOSSIP_ORGLEADER: "true"
+
+      # TODO: AUTOMATE SETTING UP BOOTSTRAP PEERS
     volumes:
-      - /var/run/:/var/run/
-      - ./scripts/peer:/home/peer/scripts
-      - ./configs/nodes/core.yaml:/var/hyperledger/config/core.yaml
-      - ./.generated/cc-src:/var/hyperledger/cc-src
-      - ./.generated/cc-pkg:/var/hyperledger/cc-pkg
-      - ./.generated/artifacts/channel/peer:/var/hyperledger/artifacts/channel/peer
-      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/peers/${ORG_PEER_ID}/msp:/var/hyperledger/msp
-      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/peers/${ORG_PEER_ID}/tls:/var/hyperledger/tls
-      - ./.generated/crypto/peerOrganizations/${ORG_DOMAIN}/users/Admin@${ORG_DOMAIN}/msp:/var/hyperledger/admin/msp
-      - ./.generated/crypto/ordererOrganizations/${ORG_DOMAIN}/orderers/${ORG_ORDERER_ID}/msp/tlscacerts:/var/hyperledger/orderer-tlscacert
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${CONFIG_CORE_CONFIG_FILE_PATH}:/var/hyperledger/config/core.yaml
+      - ${GEN_CHAINCODE_SOURCE_PATH}:/var/hyperledger/chaincode/src
+      - ${GEN_CHAINCODE_PACKAGE_PATH}:/var/hyperledger/chaincode/pkg
+      - ${GEN_PEER_CRYPTOPATH}/msp:/var/hyperledger/msp
+      - ${GEN_PEER_CRYPTOPATH}/tls:/var/hyperledger/tls
+      - ${GEN_PEER_ADMIN_MSP_PATH}:/var/hyperledger/admin/msp
+      - ${GEN_ORDERER_TLS_CACERT_FILE_PATH}:/var/hyperledger/orderer-tlscacert/orderer-tlscacert.pem
+      - ${GEN_ARTIFACTS_CHANNEL_PATH}:/var/hyperledger/artifacts/channel
+      - ${UTIL_SCRIPTS_PEER_PATH}:/home/peer/scripts
       - peer:/var/hyperledger
     ports:
-      - ${PEER_HOST_PORT:-7051}:7051
-      - ${CHAINCODE_HOST_PORT:-7052}:7052
+      - ${PEER_HOST_PORT}:7051
     networks:
       - org_network
       - global_network
@@ -57,4 +57,4 @@ networks:
     name: ${ORG_NETWORK}
   global_network:
     external: true
-    name: global_network
+    name: ${GLOBAL_NETWORK}

@@ -1,21 +1,22 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
-cd "$SCRIPT_DIR"
+if ! docker info >/dev/null 2>&1; then
+    echo "Error: Docker is not running"
+    exit 1
+fi
 
-# Changes when the script is moved
-FABRIC_DIR="$SCRIPT_DIR"
+# Many environment variable are read from this script.
+# Refer to this file whenever you want to find the value
+# or particular variables.
+source .env
+source ./env.sh
+source ./paths.sh
 
-source "$FABRIC_DIR/scripts/commons.sh"
-source "$FABRIC_DIR/.env"
-
-DEV_TOOLS_DIR="$FABRIC_DIR/.."
+export FABRIC_IMAGE_TAG
 
 if [ -z "$1" ]; then
-    if [ -d "$DEV_TOOLS_DIR/../chaincode" ]; then
-        CC_SRC_PATH="$DEV_TOOLS_DIR/../chaincode"
-    else
-        echo "Error: No argument provided and $DEV_TOOLS_DIR/../chaincode not present (repo)"
+    if [ ! -d "$CHAINCODE_REPO_DIR_PATH" ]; then
+        echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
         echo "Usage: ./cc-deploy.sh [<ABSOLUTE_CC_SRC_PATH>]"
         exit 1
     fi
@@ -25,39 +26,44 @@ else
         echo "Usage: ./cc-deploy.sh [<ABSOLUTE_CC_SRC_PATH>]"
         exit 2
     fi
-    CC_SRC_PATH="$1"
+    CHAINCODE_REPO_DIR_PATH="$1"
 fi
 
-cd "$CC_SRC_PATH"
+cd "$CHAINCODE_REPO_DIR_PATH"
+
+############################################################################################################################################
+echo -e "\xE2\x9C\x94 >>> BUILD CHAINCODE <<<"
 
 ./gradlew shadowJar -x test
 
-cd "$FABRIC_DIR"
+cd "$FABRIC_DIR_PATH"
 
-GEN_DIR="./.generated"
+rm -rf "$GEN_CHAINCODE_SOURCE_PATH/$CC_NAME"
+cp -r "$CHAINCODE_REPO_DIR_PATH/build/libs" "$GEN_CHAINCODE_SOURCE_PATH/$CC_NAME"
 
-GEN_CC_PKG_DIR="$GEN_DIR/cc-pkg"
-GEN_CC_SRC_DIR="$GEN_DIR/cc-src"
+############################################################################################################################################
+echo -e "\xE2\x9C\x94 >>> PACKAGE CHAINCODE <<<"
+docker exec "$INIT_PEER_ADDRESS" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
 
-rm -rf "$GEN_CC_SRC_DIR/$CC_NAME"
-cp -r "$CC_SRC_PATH/build/libs" "$GEN_CC_SRC_DIR/$CC_NAME"
-
-sleep 1
-
-docker exec "$INIT_PEER_ID" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
-
-for peer_id in ${ORG_PEER_IDS[@]}; do
-    docker exec "$peer_id" bash -c "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+############################################################################################################################################
+echo -e "\xE2\x9C\x94 >>> INSTALL CHAINCODE <<<"
+for peer_address in ${ORG_PEER_ADDRESSES[@]}; do
+    docker exec "$peer_address" bash -c "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
 done
 
-for name in ${ORG_NAMES[@]}; do
-    ORG_DOMAIN=${ORG_DOMAINS[$name]}
-    ORG_ORDERER_ID=${ORG_ORDERER_IDS[$name,0]}
+############################################################################################################################################
+echo -e "\xE2\x9C\x94 >>> APPROVE CHAINCODE <<<"
+for peer_key in ${!ORG_PEER_ADDRESSES[@]}; do
+    org_name="${peer_key%_*}"
 
-    for i in $(seq 0 $((NUM_OF_PEERS - 1))); do
-        ORG_PEER_ID=${ORG_ANCHOR_PEER_IDS[$name,$i]}
-        docker exec "$ORG_PEER_ID" bash -c "./chaincode/cc-approve.sh $ORG_DOMAIN $ORG_ORDERER_ID $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-    done
+    orderer_key="${org_name}_0"
+    ORG_ORDERER_ADDRESS=${ORG_ORDERER_ADDRESSES[$orderer_key]}
+
+    ORG_PEER_ADDRESS=${ORG_PEER_ADDRESSES[$peer_key]}
+
+    docker exec "$ORG_PEER_ADDRESS" bash -c "./chaincode/cc-approve.sh $ORG_ORDERER_ADDRESS $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
 done
 
-docker exec "$INIT_PEER_ID" bash -c "./chaincode/cc-commit.sh $INIT_ORG_DOMAIN $INIT_ORDERER_ID $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+############################################################################################################################################
+echo -e "\xE2\x9C\x94 >>> COMMIT CHAINCODE <<<"
+docker exec "$INIT_PEER_ADDRESS" bash -c "./chaincode/cc-commit.sh $INIT_ORDERER_ADDRESS $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ORG_PEER_ID="$1"
+ORG_PEER_ADDRESS="$1"
 CHANNEL_ID="$2"
 GROUP_NAME="$3"
 
@@ -8,14 +8,14 @@ SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 FABRIC_DIR="$SCRIPT_DIR/../.."
 
 cd "$FABRIC_DIR"
-cd "./.generated/artifacts/channel/peer/$ORG_PEER_ID"
+cd "./.generated/artifacts/channel/$ORG_PEER_ADDRESS"
 
 configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
 jq '.data.data[0].payload.data.config' config_block.json >config.json
 
 cp config.json config_copy.json
 
-jq '.channel_group.groups.Application.groups.'"$GROUP_NAME"'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'"$ORG_PEER_ID"'","port": 7051}]},"version": "0"}}' config_copy.json >modified_config.json
+jq '.channel_group.groups.Application.groups.'"$GROUP_NAME"'.values += {"AnchorPeers":{"mod_policy": "Admins","value":{"anchor_peers": [{"host": "'"$ORG_PEER_ADDRESS"'","port": 7051}]},"version": "0"}}' config_copy.json >modified_config.json
 
 configtxlator proto_encode --input config.json --type common.Config --output config.pb
 configtxlator proto_encode --input modified_config.json --type common.Config --output modified_config.pb
