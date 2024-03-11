@@ -1,82 +1,86 @@
 #!/usr/bin/env bash
 
-if ! docker info >/dev/null 2>&1; then
-    echo "Error: Docker is not running"
-    exit 1
-fi
+FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+cd "$FABRIC_DIR_PATH"
 
-# Many environment variable are read from this script.
-# Refer to this file whenever you want to find the value
-# or particular variables.
 source .env
-source ./env.sh
-source ./paths.sh
+source log.sh
 
 export FABRIC_IMAGE_TAG
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> STOP EXPLORER <<<"
-pushd "$EXPLORER_PATH"
+if [ ! -d "./.generated" ]; then
+    error "Generated filed not found. Run ./infra-up.sh first"
+    exit 1
+fi
+
+if [ -d "./.generated/.light" ]; then
+    log "Running light mode"
+    LIGHT="true"
+fi
+
+############### EXPLORER
+log "Stop explorer"
+cd "./explorer"
+
+if [ $LIGHT ]; then
+    EXPLORER_CONFIG_FILE_PATH=./config.light.json
+else
+    EXPLORER_CONFIG_FILE_PATH=./config.json
+fi
+
+export EXPLORER_CONFIG_FILE_PATH
+
 docker-compose down -v
-sleep 10
-popd
+cd "./.."
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> REMOVE DOCKER CONTAINERS <<<"
-
-function org_down {
-    local kind="$1"
-    local org_name="$2"
-    local index="$3"
-
-    if [ "$kind" = "peer" ]; then
-        set_peer_env_vars $org_name $index
-    elif [ "$kind" = "orderer" ]; then
-        set_orderer_env_vars $org_name $index
-    else
-        echo ">>> ERROR: Invalid argument for org_down"
-        exit 3
-    fi
-
-    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "$CONFIG_COMPOSE_TEMPLATES_PATH/$kind.docker-compose.yaml" -p "$org_name" down -v --remove-orphans
+############### DOCKER COMPOSE
+function compose_down {
+    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$1.docker-compose.yaml" -p "$1" down -v
 }
 
-for orderer_key in ${!ORG_ORDERER_ADDRESSES[@]}; do
-    org_name="${orderer_key%_*}"
-    index="${orderer_key#*_}"
+log "Stopping containers"
 
-    org_down orderer $org_name $index
-done
+compose_down "medtechchain"
+compose_down "medivale"
 
-for peer_key in ${!ORG_PEER_ADDRESSES[@]}; do
-    org_name="${peer_key%_*}"
-    index="${peer_key#*_}"
+if [ ! $LIGHT ]; then
+    compose_down "healpoint"
+    compose_down "lifecare"
+fi
 
-    org_down peer $org_name $index
-done
-
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> REMOVE DOCKER NETWORKS <<<"
-
+############### DOCKER COMPOSE
 function rm_docker_network {
     if [ "$(docker network ls --format "{{.Name}}" | grep "^$$1$")" ]; then
         docker network rm "$1"
     fi
 }
 
-for network in ${ALL_NETWORKS[@]}; do
-    rm_docker_network "$network"
-done
+log "Remove docker networks"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> REMOVE CHAINCODE DOCKER IMAGES <<<"
-for name in ${ORG_NAMES[@]}; do
+rm_docker_network "medtechchain"
+rm_docker_network "medivale"
+
+if [ ! $LIGHT ]; then
+    rm_docker_network "healpoint"
+    rm_docker_network "lifecare"
+fi
+
+############### CHAINCODE
+log "Remove chaincode docker images"
+
+if [ $LIGHT ]; then
+    PROJECTS=("medtechchain" "medivale")
+else
+    PROJECTS=("medtechchain" "medivale" "healpoint" "lifecare")
+fi
+
+for name in ${PROJECTS[@]}; do
     image_ids=$(docker images --format "{{.Repository}}" | grep "$name")
     for id in $image_ids; do
         docker rmi "$id"
     done
 done
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> CLEAN GENERATED FILES <<<"
-rm -rf $GEN_PATH
+############### CONFGIS
+log "Remove config files"
+rm -rf ./.generated

@@ -1,19 +1,34 @@
 #!/usr/bin/env bash
 
-if ! docker info >/dev/null 2>&1; then
-    echo "Error: Docker is not running"
-    exit 1
-fi
+FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+cd "$FABRIC_DIR_PATH"
 
-# Many environment variable are read from this script.
-# Refer to this file whenever you want to find the value
-# or particular variables.
 source .env
-source ./env.sh
-source ./paths.sh
+source log.sh
 
 export FABRIC_IMAGE_TAG
 
+if [ ! -d "./.generated" ]; then
+    error "Generated filed not found. Run ./infra-up.sh first"
+    exit 1
+fi
+
+if [ -d "./.generated/.light" ]; then
+    log "Running light mode"
+    LIGHT="true"
+fi
+
+############### INIT ORG
+# When setting up the infrastructure, one organization needs to initilize the app channel
+# and deploy the chaincode. These variables are used to automate the process.
+INIT_PEER="peer0.medtechchain.nl"
+INIT_ORDERER="orderer0.medtechchain.nl"
+
+############### CHANNEL
+CHANNEL_ID="medtechchain"
+
+############### BUILD
+CHAINCODE_REPO_DIR_PATH="$FABRIC_DIR_PATH/../../chaincode"
 if [ -z "$1" ]; then
     if [ ! -d "$CHAINCODE_REPO_DIR_PATH" ]; then
         echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
@@ -31,44 +46,50 @@ fi
 
 cd "$CHAINCODE_REPO_DIR_PATH"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> BUILD CHAINCODE <<<"
+log "Build chaincode"
 
 ./gradlew shadowJar -x test
 
 if [ $? -ne 0 ]; then
-    echo ">>> ERROR: chaincode build failed with status $?"
-    exit 1
+    error "Chaincode build failed with status $?"
+    exit 2
 fi
 
 cd "$FABRIC_DIR_PATH"
 
-rm -rf "$GEN_CHAINCODE_SOURCE_PATH/$CC_NAME"
-cp -r "$CHAINCODE_REPO_DIR_PATH/build/libs" "$GEN_CHAINCODE_SOURCE_PATH/$CC_NAME"
+rm -rf "./.generated/chaincode/src/$CC_NAME"
+cp -r "$CHAINCODE_REPO_DIR_PATH/build/libs" "./.generated/chaincode/src/$CC_NAME"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> PACKAGE CHAINCODE <<<"
-docker exec "$INIT_PEER_ADDRESS" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
+############### PACKAGE
+log "Package chaincode"
+docker exec "$INIT_PEER" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> INSTALL CHAINCODE <<<"
-for peer_address in ${ORG_PEER_ADDRESSES[@]}; do
-    docker exec "$peer_address" bash -c "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
-done
+############### INSTALL
+function peer_run {
+    docker exec "$1" bash -c "$2"
+}
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> APPROVE CHAINCODE <<<"
-for peer_key in ${!ORG_PEER_ADDRESSES[@]}; do
-    org_name="${peer_key%_*}"
+log "Install chaincode"
 
-    orderer_key="${org_name}_0"
-    ORG_ORDERER_ADDRESS=${ORG_ORDERER_ADDRESSES[$orderer_key]}
+peer_run "peer0.medtechchain.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+peer_run "peer0.medivale.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
 
-    ORG_PEER_ADDRESS=${ORG_PEER_ADDRESSES[$peer_key]}
+if [ ! $LIGHT ]; then
+    peer_run "peer0.healpoint.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+    peer_run "peer0.lifecare.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+fi
 
-    docker exec "$ORG_PEER_ADDRESS" bash -c "./chaincode/cc-approve.sh $ORG_ORDERER_ADDRESS $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-done
+############### APPROVE
+log "Approve chaincode"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> COMMIT CHAINCODE <<<"
-docker exec "$INIT_PEER_ADDRESS" bash -c "./chaincode/cc-commit.sh $INIT_ORDERER_ADDRESS $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_run "peer0.medtechchain.nl" "./chaincode/cc-approve.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_run "peer0.medivale.nl" "./chaincode/cc-approve.sh orderer0.medivale.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+
+if [ ! $LIGHT ]; then
+    peer_run "peer0.healpoint.nl" "./chaincode/cc-approve.sh orderer0.healpoint.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+    peer_run "peer0.lifecare.nl" "./chaincode/cc-approve.sh orderer0.lifecare.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+fi
+
+############### COMMIT
+log "Commit chaincode"
+peer_run "$INIT_PEER" "./chaincode/cc-commit.sh $INIT_ORDERER $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"

@@ -1,114 +1,223 @@
 #!/usr/bin/env bash
 
-if ! docker info >/dev/null 2>&1; then
-    echo "Error: Docker is not running"
-    exit 1
+FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
+cd "$FABRIC_DIR_PATH"
+
+source .env
+source log.sh
+
+if [ "$1" == "--light" ]; then
+    if [ -d "./.generated" ] && [ ! -d "./.generated/.light" ]; then
+        error "There generated files are not generated in light mode. This can cause inconsistenties. Please run ./infra-down.sh before running light mode"
+        exit 1
+    fi
+
+    log "Running light mode"
+    LIGHT="true"
+    mkdir -p "./.generated/.light"
+elif [ -n "$1" ]; then
+    echo "Usage: ./$0 [--light]"
+    exit 1  
+else
+    if [ -d "./.generated" ] && [ -d "./.generated/.light" ]; then
+        error "There generated files are generated in light mode. This can cause inconsistenties. Please run ./infra-down.sh before running default mode"
+        exit 1
+    fi
 fi
 
-# Many environment variable are read from this script.
-# Refer to this file whenever you want to find the value
-# or particular variables.
-source .env
-source ./env.sh
-source ./paths.sh
+if ! docker info >/dev/null 2>&1; then
+    echo "Error: Docker is not running"
+    exit 2
+fi
 
 export FABRIC_IMAGE_TAG
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> GENERATE CRYPTO MATERIAL <<<"
-./tools-cmd.sh "cryptogen generate --config=$CONFIG_CRYPTO_FILE_PATH --output $GEN_CRYPTO_PATH"
+############### INIT ORG
+# When setting up the infrastructure, one organization needs to initilize the app channel
+# and deploy the chaincode. These variables are used to automate the process.
+INIT_PEER="peer0.medtechchain.nl"
+INIT_ORDERER="orderer0.medtechchain.nl"
 
-echo -e "\xE2\x9C\x94 >>> GENERATE GENESIS BLOCK <<<"
-./tools-cmd.sh "configtxgen \
-    -configPath "$CONFIG_CONFIGTX_PATH" \
-    -profile "$GENESIS_PROFILE_NAME" \
-    -channelID $SYSTEM_CHANNEL \
-    -outputBlock "$GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH""
+############### CHANNEL
+SYSTEM_CHANNEL="system-channel"
+CHANNEL_ID="medtechchain"
+GENESIS_PROFILE_NAME="MedTechChainGenesis"
+APP_CHANNEL_PROFILE_NAME="MedTechChainChannel"
 
-echo -e "\xE2\x9C\x94 >>> GENERATE CHANNEL ARTIFACTS <<<"
-./tools-cmd.sh "configtxgen \
-    -configPath "$CONFIG_CONFIGTX_PATH" \
-    -profile "$APP_CHANNEL_PROFILE_NAME" \
-    -channelID "$CHANNEL_ID" \
-    -outputCreateChannelTx "$GEN_ARTIFACTS_CHANNEL_PATH/$INIT_PEER_ADDRESS/$CHANNEL_ID-channel.tx""
+############### CONFGIS
+mkdir -p "./.generated/configs/orderer0.medtechchain.nl"
+cp "./configs/node/orderer.yaml" "./.generated/configs/orderer0.medtechchain.nl"
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> SETUP DOCKER NETWORKS <<<"
+mkdir -p "./.generated/configs/peer0.medtechchain.nl"
+cp "./configs/node/core.yaml" "./.generated/configs/peer0.medtechchain.nl"
 
-for network in ${ALL_NETWORKS[@]}; do
+mkdir -p "./.generated/configs/orderer0.medivale.nl"
+cp "./configs/node/orderer.yaml" "./.generated/configs/orderer0.medivale.nl"
+
+mkdir -p "./.generated/configs/peer0.medivale.nl"
+cp "./configs/node/core.yaml" "./.generated/configs/peer0.medivale.nl"
+
+if [ ! $LIGHT ]; then
+    mkdir -p "./.generated/configs/orderer0.healpoint.nl"
+    cp "./configs/node/orderer.yaml" "./.generated/configs/orderer0.healpoint.nl"
+
+    mkdir -p "./.generated/configs/peer0.healpoint.nl"
+    cp "./configs/node/core.yaml" "./.generated/configs/peer0.healpoint.nl"
+
+    mkdir -p "./.generated/configs/orderer0.lifecare.nl"
+    cp "./configs/node/orderer.yaml" "./.generated/configs/orderer0.lifecare.nl"
+
+    mkdir -p "./.generated/configs/peer0.lifecare.nl"
+    cp "./configs/node/core.yaml" "./.generated/configs/peer0.lifecare.nl"
+fi
+
+############### CRYPTO MATERIAL
+GEN_CRYPTO_PATH="./.generated/crypto"
+if [ ! -d $GEN_CRYPTO_PATH ]; then
+    log "Generate crypto material"
+
+
+    if [ $LIGHT ]; then
+        CONFIG_CRYPTO_FILE_PATH="./configs/crypto/light/crypto-config.yaml"
+    else
+        CONFIG_CRYPTO_FILE_PATH="./configs/crypto/crypto-config.yaml"
+    fi
+
+    ./tools-cmd.sh "cryptogen generate --config=$CONFIG_CRYPTO_FILE_PATH --output $GEN_CRYPTO_PATH"
+
+else
+    log "Crypto material detected. Skipping..."
+fi
+
+############### GENESIS BLOCK
+GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH="./.generated/artifacts/genesis/genesis.block"
+if [ ! -f $GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH ]; then
+    log "Generate genesis block"
+
+    if [ $LIGHT ]; then
+        CONFIG_CONFIGTX_PATH="./configs/configtx/light"
+    else
+        CONFIG_CONFIGTX_PATH="./configs/configtx"
+    fi
+
+    ./tools-cmd.sh "configtxgen \
+        -configPath $CONFIG_CONFIGTX_PATH \
+        -profile $GENESIS_PROFILE_NAME \
+        -channelID $SYSTEM_CHANNEL \
+        -outputBlock $GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH"
+
+else
+    log "Genesis block detected. Skipping..."
+fi
+
+
+############### CHANNEL CONFIG TX
+CHANNEL_CONFIG_TX_FILE_PATH="./.generated/artifacts/channel/$INIT_PEER/$CHANNEL_ID-channel.tx"
+if [ ! -f $CHANNEL_CONFIG_TX_FILE_PATH ]; then
+    log "Generate channel config transaction"
+
+    if [ $LIGHT ]; then
+        CONFIG_CONFIGTX_PATH="./configs/configtx/light"
+    else
+        CONFIG_CONFIGTX_PATH="./configs/configtx"
+    fi
+
+    ./tools-cmd.sh "configtxgen \
+        -configPath $CONFIG_CONFIGTX_PATH \
+        -profile $APP_CHANNEL_PROFILE_NAME \
+        -channelID $CHANNEL_ID \
+        -outputCreateChannelTx $CHANNEL_CONFIG_TX_FILE_PATH"
+
+else
+    log "Channel config transaction detected. Skipping..."
+fi
+
+
+############### DOCKER NETWORKS
+if [ $LIGHT ]; then
+    NETWORKS=("global" "medtechchain" "medivale")
+else
+    NETWORKS=("global" "medtechchain" "medivale" "healpoint" "lifecare")
+fi
+
+log "Setup docker networks"
+for network in ${NETWORKS[@]}; do
     if [ ! "$(docker network ls --format "{{.Name}}" | grep "^$network$")" ]; then
         docker network create --driver bridge "$network"
+        if [ $? -ne 0 ]; then
+            error "Could not create network $network. Failed with status $?"
+            exit 3
+        fi
     fi
 done
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> SETUP DOCKER CONTAINERS (IGNORE THE WARNINGS) <<<"
-
-# make sure to export required env vars before call
-# $1 = orderer | peer
-function container_up {
-    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "$CONFIG_COMPOSE_TEMPLATES_PATH/$1.docker-compose.yaml" -p "$ORG_NAME" up -d
+############### DOCKER COMPOSE
+# $1 = project name; $2 = service name
+function compose_up {
+    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$1.docker-compose.yaml" -p "$1" up -d "$2"
 }
 
-# $1 = orderer | peer
-function container_down {
-    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "$CONFIG_COMPOSE_TEMPLATES_PATH/$1.docker-compose.yaml" -p "$ORG_NAME" down -v
+# $1 = project name; $2 = service name
+function compose_down {
+    docker-compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$1.docker-compose.yaml" -p "$1" down -v "$2"
 }
 
 # check for the Docker bug when containers do not join the network / network is not updated
 # so the containers cannot communicate
 # $1 = network name; $2 = container name
 function is_in_network {
-    
     if [ "$(docker network inspect "$1" --format '{{range .Containers}}{{.Name}}{{println}}{{end}}' | grep "^$2$")" ]; then
         return 0
     fi
     return 1
 }
 
+# $1 = network name; $2 = container name
 function is_orderer_connnected {
-    is_in_network "$ORG_NETWORK" "$ORDERER_ADDRESS"
-    if ! is_in_network "$ORG_NETWORK" "$ORDERER_ADDRESS" || ! is_in_network "$GLOBAL_NETWORK" "$ORDERER_ADDRESS"; then
+    if ! is_in_network "$1" "$2" || ! is_in_network "global" "$2"; then
         return 1
     fi
     return 0
 }
 
+# $1 = network name; $2 = container name; $3 = "true" if is anchor peer
 function is_peer_connected {
-    if ! is_in_network "$ORG_NETWORK" "$PEER_ADDRESS" || { [[ " ${ORG_ANCHOR_PEER_ADDRESSES[@]} " == *" $PEER_ADDRESS "* ]] && ! is_in_network "$GLOBAL_NETWORK" "$PEER_ADDRESS"; }; then
+    if ! is_in_network "$1" "$2" || { [ "$3" = "true" ] && ! is_in_network "global" "$2"; }; then
         return 1
     fi
     return 0
 }
 
-# $1 = orderer | peer; $2 = org. name; $3 = index
+# $1 = orderer | peer; $2 = project name / network; $3 = service name / container id; $4 = "true" if is anchor peer
 function create_node {
     local kind="$1"
-    local org_name="$2"
-    local index="$3"
+    local project="$2"
+    local network="$2"
+    local service="$3"
+    local container_id="$3"
+    local is_anchor="$4"
 
-    local max_attempts=5
-    local attempt=1
-
-    if [ "$kind" = "peer" ]; then
-        set_peer_env_vars $org_name $index
-    elif [ "$kind" = "orderer" ]; then
-        set_orderer_env_vars $org_name $index
-    else
-        echo ">>> ERROR: Invalid argument for create_node <<<"
-        exit 2
+    if [ "$kind" != "peer" ] && [ "$kind" != "orderer" ]; then
+        error "Invalid argument for create_node"
+        exit 4
     fi
 
-    container_up "$kind"
+    log "Creating $kind: $service"
 
-    while { [ "$kind" = "orderer" ] && ! is_orderer_connnected; } || { [ "$kind" = "peer" ] && ! is_peer_connected; }; do
-        echo ">>> WARNING: Container detected to not join the docker network. Recreating it... <<<"
-        container_down "$kind"
-        container_up "$kind"
+    local attempt=1
+    local max_attempts=5
+
+    compose_up "$project" "$service"
+
+    while { [ "$kind" = "orderer" ] && ! is_orderer_connnected $network $container_id; } || { [ "$kind" = "peer" ] && ! is_peer_connected $network $container_id $is_anchor; }; do
+        warn "Container detected to not join the docker network. Recreating it..."
+
+        compose_down "$project" "$service"
+        compose_up "$project" "$service"
 
         if [ $attempt == $max_attempts ]; then
-            echo ">>> ERROR: Could not set up infra because of containers constantly not joining the docker networks. <<<"
-            exit 3
+            error "Could not set up infra because of containers constantly not joining the docker networks"
+            exit 4
         fi
 
         ((attempt++))
@@ -116,55 +225,74 @@ function create_node {
 
 }
 
-# Run the containers and check that they join the correct networks
-for orderer_key in ${!ORG_ORDERER_ADDRESSES[@]}; do
-    org_name="${orderer_key%_*}"
-    index="${orderer_key#*_}"
+log "Running containers"
 
-    echo ">>> CREATE ORDERER: $org_name, $index"
-    create_node orderer $org_name $index
-done
+create_node orderer medtechchain orderer0.medtechchain.nl
+create_node peer medtechchain peer0.medtechchain.nl true
 
-for peer_key in ${!ORG_PEER_ADDRESSES[@]}; do
-    org_name="${peer_key%_*}"
-    index="${peer_key#*_}"
+create_node orderer medivale orderer0.medivale.nl
+create_node peer medivale peer0.medivale.nl true
 
-    echo ">>> CREATE PEER: $org_name, $index"
-    create_node peer $org_name $index
-done
+if [ ! $LIGHT ]; then
+    create_node orderer healpoint orderer0.healpoint.nl
+    create_node peer healpoint peer0.healpoint.nl true
+
+    create_node orderer lifecare orderer0.lifecare.nl
+    create_node peer lifecare peer0.lifecare.nl true
+fi
+
+log "Wait..."
+sleep 5
+############### APP CHANNEL
+function peer_run {
+    docker exec "$1" bash -c "$2"
+}
+
+log "App channel $CHANNEL_ID initialised $INIT_PEER"
+peer_run "$INIT_PEER" "./channel/init-app-channel.sh $INIT_ORDERER $INIT_PEER $CHANNEL_ID"
 
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> APP CHANNEL $CHANNEL_ID IS INITILAISED BY $INIT_PEER_ADDRESS <<<"
-docker exec "$INIT_PEER_ADDRESS" bash -c "./channel/init-app-channel.sh $INIT_ORDERER_ADDRESS $INIT_PEER_ADDRESS $CHANNEL_ID"
+log "Peers join app channel $CHANNEL_ID"
+peer_run "peer0.medtechchain.nl" "./channel/join-app-channel.sh $INIT_PEER $CHANNEL_ID"
+peer_run "peer0.medivale.nl" "./channel/join-app-channel.sh $INIT_PEER $CHANNEL_ID"
 
-echo -e "\xE2\x9C\x94 >>> PEERS JOIN $CHANNEL_ID APP CHANNEL <<<"
-for peer_address in ${ORG_PEER_ADDRESSES[@]}; do
-    echo ">>> PEER JOINS APP CHANNEL: $peer_address"
-    docker exec "$peer_address" bash -c "./channel/join-app-channel.sh $INIT_PEER_ADDRESS $CHANNEL_ID"
-done
+if [ ! $LIGHT ]; then
+    peer_run "peer0.healpoint.nl" "./channel/join-app-channel.sh $INIT_PEER $CHANNEL_ID"
+    peer_run "peer0.lifecare.nl" "./channel/join-app-channel.sh $INIT_PEER $CHANNEL_ID"
+fi
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> START EXPLORER <<<"
-pushd "$EXPLORER_PATH"
+############### EXPLORER
+log "Start explorer"
+cd "./explorer"
+
+if [ $LIGHT ]; then
+    EXPLORER_CONFIG_FILE_PATH=./config.light.json
+else
+    EXPLORER_CONFIG_FILE_PATH=./config.json
+fi
+
+export EXPLORER_CONFIG_FILE_PATH
+
 docker-compose up -d
-popd
+cd "./.."
 
-############################################################################################################################################
-echo -e "\xE2\x9C\x94 >>> SETUP ANCHOR PEERS <<<"
+############### ANCHOR PEERS
+log "Setup anchor peers"
 
-for anchor_peer_key in ${!ORG_ANCHOR_PEER_ADDRESSES[@]}; do
-    org_name="${anchor_peer_key%_*}"
+peer_run "peer0.medtechchain.nl" "./channel/fetch-channel-config-block.sh orderer0.medtechchain.nl peer0.medtechchain.nl $CHANNEL_ID"
+./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.medtechchain.nl $CHANNEL_ID MedTechChainPeer"
+peer_run  "peer0.medtechchain.nl" "./channel/update-channel-config.sh orderer0.medtechchain.nl peer0.medtechchain.nl $CHANNEL_ID"
 
-    orderer_key="${org_name}_0"
-    ORG_ORDERER_ADDRESS=${ORG_ORDERER_ADDRESSES[$orderer_key]}
-    PEER_GROUP_NAME=${PEER_GROUP_NAMES[$org_name]}
-    ORG_ANCHOR_PEER_ADDRESS=${ORG_ANCHOR_PEER_ADDRESSES[$anchor_peer_key]}
+peer_run "peer0.medivale.nl" "./channel/fetch-channel-config-block.sh orderer0.medivale.nl peer0.medivale.nl $CHANNEL_ID"
+./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.medivale.nl $CHANNEL_ID MediValePeer"
+peer_run  "peer0.medivale.nl" "./channel/update-channel-config.sh orderer0.medivale.nl peer0.medivale.nl $CHANNEL_ID"
 
-    echo ">>> $ORG_ANCHOR_PEER_ADDRESS ANCHOR PEER MODIFIES APP CHANNEL CONFIG"
+if [ ! $LIGHT ]; then
+    peer_run "peer0.healpoint.nl" "./channel/fetch-channel-config-block.sh orderer0.healpoint.nl peer0.healpoint.nl $CHANNEL_ID"
+    ./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.healpoint.nl $CHANNEL_ID HealPointPeer"
+    peer_run  "peer0.healpoint.nl" "./channel/update-channel-config.sh orderer0.healpoint.nl peer0.healpoint.nl $CHANNEL_ID"
 
-    docker exec "$ORG_ANCHOR_PEER_ADDRESS" bash -c "./channel/fetch-channel-config-block.sh $ORG_ORDERER_ADDRESS $ORG_ANCHOR_PEER_ADDRESS $CHANNEL_ID"
-    ./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh $ORG_ANCHOR_PEER_ADDRESS $CHANNEL_ID $PEER_GROUP_NAME"
-    docker exec "$ORG_ANCHOR_PEER_ADDRESS" bash -c "./channel/update-channel-config.sh $ORG_ORDERER_ADDRESS $ORG_ANCHOR_PEER_ADDRESS $CHANNEL_ID"
-done
-
+    peer_run "peer0.lifecare.nl" "./channel/fetch-channel-config-block.sh orderer0.lifecare.nl peer0.lifecare.nl $CHANNEL_ID"
+    ./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.lifecare.nl $CHANNEL_ID LifeCarePeer"
+    peer_run  "peer0.lifecare.nl" "./channel/update-channel-config.sh orderer0.lifecare.nl peer0.lifecare.nl $CHANNEL_ID"
+fi

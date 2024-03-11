@@ -25,7 +25,7 @@ Run `tools-cli.sh` to start an interactive terminal within the docker container 
 
 The `tools-cmd.sh` script is called by other automation scripts, so the developer can ignore it.
 
-The `scripts` folder is mounted in these containers. These scripts perform commands fabric commands.
+The `scripts` folder is mounted in these containers. These scripts perform fabric commands.
 
 ### Setup Hyperledger Fabric Infrastructure
 
@@ -39,11 +39,16 @@ The `scripts` folder is mounted in these containers. These scripts perform comma
     * `peer0.healpoint.nl` - localhost:10051
     * `peer0.lifecare.nl` - localhost:11051
 
+### Deploying a new Chaincode version
+
+Before any deployiment using `cc-deploy.sh`, make sure to set the vairables in the `.env` to new unique values (version and sequence).
+
 ### Chaincode Development - Chaincode as a Service
 TODO: Coming soon
 
 ### Clean Hyperledger Fabric Infrastructure
-1. Run `infra-down.sh` to clean the environment.
+1. Start/stop infra using the `infra-start.sh`/`infra-stop.sh`
+1. Run `infra-down.sh` for a full clean
 
 ### Known problems
 

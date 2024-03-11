@@ -1,0 +1,28 @@
+OrdererOrgs:
+  - Name: MedTechChain
+    Domain: medtechchain.nl
+    Template:
+      Count: 1
+  - Name: MediVale
+    Domain: medivale.nl
+    Template:
+      Count: 1
+
+PeerOrgs:
+  - Name: MedTechChain
+    Domain: medtechchain.nl
+    EnableNodeOUs: false
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+  - Name: MediVale
+    Domain: medivale.nl
+    EnableNodeOUs: false
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+
