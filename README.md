@@ -16,39 +16,46 @@ We will use docker for Fabric, i.e., will not install any binaries.
 Designed for:
 * `OS`: Ubuntu
 * `Containerization`: Docker Desktop
-* `Interpeter`: Bash v4+
-* `Java`: v17+
+
+## Folder strucutre
+
+All other repositories should be placed in a common root. This is required since there is the need to place the crypto material in the other repositories before build.
 
 ### Hyperledger Fabric - Tools
 
-Run `tools-cli.sh` to start an interactive terminal within the docker container `fabric-tools`. This container joins the `fabric-tools` network which will be also used by the other nodes. 
+Run `fabric/tools-cli.sh` to start an interactive terminal within the docker container `fabric-tools`.
 
-The `tools-cmd.sh` script is called by other automation scripts, so the developer can ignore it.
+The `fabric/tools-cmd.sh` script is called by other automation scripts, so the developer can ignore it.
 
-The `scripts` folder is mounted in these containers. These scripts perform fabric commands.
+The `fabric/scripts` folder is mounted in these containers. These scripts perform fabric commands.
 
 ### Setup Hyperledger Fabric Infrastructure
 
-1. Run the `infra-up.sh` for setup.
-2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `dev-tools` repo folder. When you deploy a new version, it is better to recreate the infrastructure.
+1. Run the `infra/infra-start.sh [--light]` for setup. Light mode runs fewer hospitals
+2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `dev-tools` repo folder. When you deploy a new version, make sure to update the version and sequence number in the `fabric/.env` file. These can be reset by recreating the infrasturcture.
 
 ### Application Development - Port Mapping
 * **Peer ports**:
-    * `peer0.medtechchain.nl` - localhost:8051
-    * `peer0.medivale.nl` - localhost:9051
-    * `peer0.healpoint.nl` - localhost:10051
-    * `peer0.lifecare.nl` - localhost:11051
+    * `peer0.medtechchain.nl` - 8051
+    * `peer0.medivale.nl` - 9051
+    * `peer0.healpoint.nl` - 10051
+    * `peer0.lifecare.nl` - 11051
 
 ### Deploying a new Chaincode version
 
 Before any deployiment using `cc-deploy.sh`, make sure to set the vairables in the `.env` to new unique values (version and sequence).
 
-### Chaincode Development - Chaincode as a Service
-TODO: Coming soon
-
 ### Clean Hyperledger Fabric Infrastructure
 1. Start/stop infra using the `infra-start.sh`/`infra-stop.sh`
-1. Run `infra-down.sh` for a full clean
+1. Run `infra-clean.sh` for a full clean
+
+### Project scripts
+
+The util scripts in the `dev-tools` folder perform operations accross the project repos and start all services:
+* `./all-run.sh [--light] [<SMTP_PASSWORD>]`
+* `./all-stop.sh [--clean]` (the flag cleans all volumes)
+* `./ums-be-run.sh [--light] [<SMTP_PASSWORD>]`
+* `./ums-be-stop.sh [--clean]` (the flag cleans all volumes)
 
 ### Known problems
 

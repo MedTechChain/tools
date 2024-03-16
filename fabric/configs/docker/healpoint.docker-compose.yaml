@@ -48,7 +48,7 @@ services:
       CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE: healpoint
 
       CORE_PEER_MSPCONFIGPATH: /var/hyperledger/msp
-      CORE_PEER_LOCALMSPID: HHealPointPeerMSP
+      CORE_PEER_LOCALMSPID: HealPointPeerMSP
 
       CORE_PEER_TLS_ENABLED: "true"
       CORE_PEER_TLS_CERT_FILE: /var/hyperledger/tls/server.crt
