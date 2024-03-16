@@ -13,8 +13,6 @@ elif [ -n "$1" ]; then
 fi
 
 ./fabric/infra-start.sh "$1"
-warn "SUDO REQUIRED: make sure the .generated folder belongs to the current user"
-sudo chown -R $USER:$USER ./fabric/.generated
 ./fabric/cc-deploy.sh
 
 cd ..
@@ -40,5 +38,3 @@ fi
 docker-compose --profile $PROFILE -f ./hospital-server/docker-compose.yaml -p medtechchain-hpt up -d --build
 
 docker-compose -f ./frontend/docker-compose.yaml -p medtechchain-ums-fe up -d --build
-
-docker restart explorer.medtechchain.nl

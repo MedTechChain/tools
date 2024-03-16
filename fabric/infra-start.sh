@@ -254,3 +254,5 @@ for ((i = 0; i < ${#GROUP_NAMES[@]}; i++)); do
     ./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.${DOMAINS[$i]} $CHANNEL_ID ${GROUP_NAMES[$i]}"
     peer_run "peer0.${DOMAINS[$i]}" "./channel/update-channel-config.sh orderer0.${DOMAINS[$i]} peer0.${DOMAINS[$i]} $CHANNEL_ID"
 done
+
+docker restart explorer.medtechchain.nl

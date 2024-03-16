@@ -18,6 +18,9 @@ if [ -d "./.generated/.light" ]; then
     LIGHT="true"
 fi
 
+warn "SUDO REQUIRED: make sure the .generated folder belongs to the current user"
+sudo chown -R $USER:$USER ./.generated
+
 GEN_BUILD="$FABRIC_DIR_PATH/.generated/chaincode/build"
 GEN_SRC="$FABRIC_DIR_PATH/.generated/chaincode/src/$CC_NAME"
 
