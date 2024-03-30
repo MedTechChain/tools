@@ -1,4 +1,4 @@
-# dev-tools
+# tools
 
 ## Hyperledger Fabric
 
@@ -32,7 +32,7 @@ The `fabric/scripts` folder is mounted in these containers. These scripts perfor
 ### Setup Hyperledger Fabric Infrastructure
 
 1. Run the `infra/infra-start.sh [--light]` for setup. Light mode runs fewer hospitals
-2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `dev-tools` repo folder. When you deploy a new version, make sure to update the version and sequence number in the `fabric/.env` file. These can be reset by recreating the infrasturcture.
+2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `tools` repo folder. When you deploy a new version, make sure to update the version and sequence number in the `fabric/.env` file. These can be reset by recreating the infrasturcture.
 
 ### Application Development - Port Mapping
 * **Peer ports**:
@@ -51,7 +51,7 @@ Before any deployiment using `cc-deploy.sh`, make sure to set the vairables in t
 
 ### Project scripts
 
-The util scripts in the `dev-tools` folder perform operations accross the project repos and start all services:
+The util scripts in the `tools` folder perform operations accross the project repos and start all services:
 * `./all-run.sh [--light] [<SMTP_PASSWORD>]`
 * `./all-stop.sh [--clean]` (the flag cleans all volumes)
 * `./ums-be-run.sh [--light] [<SMTP_PASSWORD>]`

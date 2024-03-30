@@ -14,8 +14,8 @@ docker-compose --profile medivale --profile healpoint --profile lifecare -f ./ho
 
 
 if [ "$1" = "--clean" ]; then
-    ./dev-tools/fabric/infra-clean.sh
+    ./tools/fabric/infra-clean.sh
 else
-    ./dev-tools/fabric/infra-stop.sh
+    ./tools/fabric/infra-stop.sh
 fi
 
