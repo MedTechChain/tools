@@ -4,7 +4,7 @@ FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 cd "$FABRIC_DIR_PATH"
 
 source .env
-source ../log.sh
+source ./scripts/util/log.sh
 
 export FABRIC_IMAGE_TAG
 
@@ -64,7 +64,7 @@ done
 log "Remove chaincode docker images"
 
 for name in ${PROJECTS[@]}; do
-    image_ids=$(docker images --format "{{.Repository}}" | grep "$name")
+    image_ids=$(docker images --format "{{.Repository}}" | grep "$name-")
     for id in $image_ids; do
         docker rmi "$id"
     done

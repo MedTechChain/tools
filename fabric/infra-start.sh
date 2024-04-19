@@ -4,7 +4,7 @@ FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 cd "$FABRIC_DIR_PATH"
 
 source .env
-source ../log.sh
+source ./scripts/util/log.sh
 
 if [ "$1" == "--light" ]; then
     if [ -d "./.generated" ] && [ ! -d "./.generated/.light" ]; then
@@ -74,7 +74,7 @@ if [ ! -d $GEN_CRYPTO_PATH ]; then
         CONFIG_CRYPTO_FILE_PATH="./configs/crypto/crypto-config.yaml"
     fi
 
-    ./tools-cmd.sh "cryptogen generate --config=$CONFIG_CRYPTO_FILE_PATH --output $GEN_CRYPTO_PATH"
+    ./scripts/util/tools-cmd.sh "cryptogen generate --config=$CONFIG_CRYPTO_FILE_PATH --output $GEN_CRYPTO_PATH"
 
 else
     log "Crypto material detected. Skipping..."
@@ -91,7 +91,7 @@ if [ ! -f $GEN_ARTIFACTS_GENESIS_BLOCK_FILE_PATH ]; then
         CONFIG_CONFIGTX_PATH="./configs/configtx"
     fi
 
-    ./tools-cmd.sh "configtxgen \
+    ./scripts/util/tools-cmd.sh "configtxgen \
         -configPath $CONFIG_CONFIGTX_PATH \
         -profile $GENESIS_PROFILE_NAME \
         -channelID $SYSTEM_CHANNEL \
@@ -112,7 +112,7 @@ if [ ! -f $CHANNEL_CONFIG_TX_FILE_PATH ]; then
         CONFIG_CONFIGTX_PATH="./configs/configtx"
     fi
 
-    ./tools-cmd.sh "configtxgen \
+    ./scripts/util/tools-cmd.sh "configtxgen \
         -configPath $CONFIG_CONFIGTX_PATH \
         -profile $APP_CHANNEL_PROFILE_NAME \
         -channelID $CHANNEL_ID \
@@ -251,8 +251,9 @@ fi
 
 for ((i = 0; i < ${#GROUP_NAMES[@]}; i++)); do
     peer_run "peer0.${DOMAINS[$i]}" "./channel/fetch-channel-config-block.sh orderer0.${DOMAINS[$i]} peer0.${DOMAINS[$i]} $CHANNEL_ID"
-    ./tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.${DOMAINS[$i]} $CHANNEL_ID ${GROUP_NAMES[$i]}"
+    ./scripts/util/tools-cmd.sh "./scripts/tools/generate-anchor-peer-update-channel-config.sh peer0.${DOMAINS[$i]} $CHANNEL_ID ${GROUP_NAMES[$i]}"
     peer_run "peer0.${DOMAINS[$i]}" "./channel/update-channel-config.sh orderer0.${DOMAINS[$i]} peer0.${DOMAINS[$i]} $CHANNEL_ID"
 done
 
+log "Restaring Explorer for safety"
 docker restart explorer.medtechchain.nl

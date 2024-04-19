@@ -1,38 +1,40 @@
 # tools
 
-## Hyperledger Fabric
+## Install Hyperledger Fabric
 
-We will use docker for Fabric, i.e., will not install any binaries.
+Installing any Fabric binary is not required since everything is set up to use Docker.
 
-1. Make sure you have docker installed and running
+1. Have Docker installed
+2. Run: `curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh && ./install-fabric.sh docker`.
 
-2. Run this command 
-`curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh`. This downloads the `install-fabric.sh` (please do not push the script on the repo).
+## Prerequisites
 
-3. Run `./install-fabric.sh docker`. This downloads the docker images related to Fabric.
+- **`OS`**: Linux (tested for Ubuntu, Arch, MacOS)
+- **`Containerization`**: Docker Desktop
 
-## Usage
+## Project structure
 
-Designed for:
-* `OS`: Ubuntu
-* `Containerization`: Docker Desktop
+The developer should normally use only the scripts in the `fabric` directory.
 
-## Folder strucutre
+The `fabric/scripts` contains utilitary scripts, used by the scripts from `fabric` directory. The `fabric/scripts/peer` and `fabric/scripts/tools` will be mounted inside peer/tool containers to facilitate automation.
 
-All other repositories should be placed in a common root. This is required since there is the need to place the crypto material in the other repositories before build.
+## Developer scripts
 
-### Hyperledger Fabric - Tools
+* Run `fabric/tools-cli.sh` to start an interactive terminal within a `fabric/tools` container.
+* Run `fabric/infra-start.sh [--light]` for setting up the infrastrcture. Light mode runs fewer hospitals. After setting up the infrastructure, the developer is supposed to provide the generated crypto material to the rest of applications (copy in the repsective repos with util scripts). Note: Once setting an light infra, the developer has to completely clean the infra and recopy the crypto material when regenerated.
+* Run `fabric/infra-stop.sh` stops the infra without deleting generated crypto material and state. Use `fabric/infra-start.sh [--light]` to start it.
+* Run `fabric/infra-clean.sh` completely purges the entire infrastructure, deleting state and generated crypto material.
+* Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `tools` repo folder. When you deploy a new version, make sure to increase the version and sequence number in the `fabric/.env` file. These can be reset by recreating the infrasturcture. As a current limitation, after some point, the infrastrcture has to be reseted after some chaincode deployments since the messages for updaiting it exceed the maximum size (did not have time to investigate into it).
 
-Run `fabric/tools-cli.sh` to start an interactive terminal within the docker container `fabric-tools`.
+Please refer to the `Known problems` section in case of problems.
 
-The `fabric/tools-cmd.sh` script is called by other automation scripts, so the developer can ignore it.
 
-The `fabric/scripts` folder is mounted in these containers. These scripts perform fabric commands.
+## Explorer
 
-### Setup Hyperledger Fabric Infrastructure
+Accessible at `localhost:9000`. Sometimes requires refresh before being properly displayed. Username and password: `admin`.
 
-1. Run the `infra/infra-start.sh [--light]` for setup. Light mode runs fewer hospitals
-2. Run the `cc-deploy.sh` to deploy the chaincode. Make sure to provide the path to the `chaincode` repo folder or have in at the same level as the `tools` repo folder. When you deploy a new version, make sure to update the version and sequence number in the `fabric/.env` file. These can be reset by recreating the infrasturcture.
+
+Please refer to the `Known problems` section in case of problems.
 
 ### Application Development - Port Mapping
 * **Peer ports**:
@@ -41,21 +43,7 @@ The `fabric/scripts` folder is mounted in these containers. These scripts perfor
     * `peer0.healpoint.nl` - 10051
     * `peer0.lifecare.nl` - 11051
 
-### Deploying a new Chaincode version
-
-Before any deployiment using `cc-deploy.sh`, make sure to set the vairables in the `.env` to new unique values (version and sequence).
-
-### Clean Hyperledger Fabric Infrastructure
-1. Start/stop infra using the `infra-start.sh`/`infra-stop.sh`
-1. Run `infra-clean.sh` for a full clean
-
-### Project scripts
-
-The util scripts in the `tools` folder perform operations accross the project repos and start all services:
-* `./all-run.sh [--light] [<SMTP_PASSWORD>]`
-* `./all-stop.sh [--clean]` (the flag cleans all volumes)
-* `./ums-be-run.sh [--light] [<SMTP_PASSWORD>]`
-* `./ums-be-stop.sh [--clean]` (the flag cleans all volumes)
+Please refer to the `configs` folder for specific configurations.
 
 ### Known problems
 
@@ -65,7 +53,38 @@ sudo chown -R ${USER}:${USER} <PATH_TO_.GENERATED>
 ```
 Another alternative is to run the script as root.
 
-2. `Explorer not available`: Sometimes Explorer does not work, though the container is running. This is because the image is badly design, and we cannot change it, making the container to remain alive even when the server itself dies within the container. To fix this, restart the container:
+Finally, you could circumvent this using remapping:
+
+### Enabling User Namespace Remapping in Docker
+
+Here's how you can set up user namespace remapping:
+* **Configure Docker Daemon**: You need to edit the Docker daemon configuration file, typically located at `/etc/docker/daemon.json`, to enable user namespace remapping.
+    
+    jsonCopy code
+    
+    `{   "userns-remap": "default" }`
+    
+    The `"default"` setting automatically creates and uses a new user and group (`dockremap`) on your host system. Docker will assign a range of UIDs and GIDs from the host to be used for the user namespaces.
+    
+* **Restart Docker Service**: After changing the configuration, you'll need to restart the Docker service to apply the changes. You can do this by running:
+    
+    bashCopy code
+    
+    `sudo systemctl restart docker`
+    
+* **Verify the Configuration**: Once Docker restarts, any new container you run will have user namespace remapping enabled. Files created by `root` inside the container will be owned by the `dockremap` user on the host.
+    
+* **Custom Mapping**: If you want a specific user on your host to own the files, you can create a custom mapping instead of using `"default"`. First, ensure the user and corresponding group exist on your host, then specify them in the Docker daemon configuration:
+    
+    jsonCopy code
+    
+    `{   "userns-remap": "yourusername" }`
+    
+    Replace `yourusername` with the actual username on your host system. Docker will need to be able to find or create a subordinate UID and GID range entry for this user in `/etc/subuid` and `/etc/subgid`.
+    
+* **Adjust Permissions and Ownership**: Ensure that the directory on the host that you're using for the bind mount has the appropriate permissions so that the remapped user can read, write, and execute as necessary.
+
+2. `Explorer not available`: Sometimes Explorer does not work, though the container is running. This is because the image is badly designed, making the container to remain alive even when the server itself dies within the container. To fix this, restart the container and constantly check logs:
 ```
 docker restart explorer.medtechchain.nl
 ```
@@ -81,3 +100,5 @@ docker ps -a
 docker stop <ID>
 docker rm <ID>
 ```
+
+4. `Running out of memory`: Increase Swap size. 16 GB Ram barely suffices for one chaincode deployment with only one hospital, together with the other applications.
