@@ -2,4 +2,4 @@
 
 cd -- "$(dirname "$0")"
 
-./tools-cmd.sh bash
+./scripts/util/tools-cmd.sh bash

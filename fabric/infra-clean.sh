@@ -4,7 +4,7 @@ FABRIC_DIR_PATH="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 cd "$FABRIC_DIR_PATH"
 
 source .env
-source ../log.sh
+source ./scripts/util/log.sh
 
 export FABRIC_IMAGE_TAG
 
