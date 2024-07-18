@@ -8,14 +8,21 @@ source ./scripts/util/log.sh
 
 export FABRIC_IMAGE_TAG
 
+############### VARIABLES
+CC_NAME="medtechchain"
+CC_VERSION="$1"
+CC_SEQ="$2"
+
+# When setting up the infrastructure, one organization needs to initilize the app channel
+# and deploy the chaincode. These variables are used to automate the process.
+INIT_PEER="peer0.medtechchain.nl"
+INIT_ORDERER="orderer0.medtechchain.nl"
+
+CHANNEL_ID="medtechchain"
+
 if [ ! -d "./.generated" ]; then
     error "Generated filed not found. Run ./infra-start.sh first"
     exit 1
-fi
-
-if [ -d "./.generated/.light" ]; then
-    log "Running light mode"
-    LIGHT="true"
 fi
 
 warn "SUDO REQUIRED: make sure the .generated folder belongs to the current user"
@@ -30,28 +37,25 @@ if [ $(ls "$GEN_SRC" | grep "$CC_VERSION") ]; then
     exit 2
 fi
 
-############### INIT ORG
-# When setting up the infrastructure, one organization needs to initilize the app channel
-# and deploy the chaincode. These variables are used to automate the process.
-INIT_PEER="peer0.medtechchain.nl"
-INIT_ORDERER="orderer0.medtechchain.nl"
-
-############### CHANNEL
-CHANNEL_ID="medtechchain"
-
 ############### BUILD
 CHAINCODE_REPO_DIR_PATH="$FABRIC_DIR_PATH/../../chaincode"
-if [ -z "$1" ]; then
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
+    echo "Usage: ./cc-deploy.sh <CC_VERION> <CC_SEQ> [<ABSOLUTE_CC_SRC_PATH>]"
+    exit 3
+fi
+
+if [ -z "$3" ]; then
     if [ ! -d "$CHAINCODE_REPO_DIR_PATH" ]; then
         echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
-        echo "Usage: ./cc-deploy.sh [<ABSOLUTE_CC_SRC_PATH>]"
-        exit 3
+        echo "Usage: ./cc-deploy.sh <CC_VERION> <CC_SEQ> [<ABSOLUTE_CC_SRC_PATH>]"
+        exit 4
     fi
 else
-    if [[ ! "$1" =~ ^/ ]]; then
+    if [[ ! "$3" =~ ^/ ]]; then
         echo "Error: Provided argument is not an absolute path"
-        echo "Usage: ./cc-deploy.sh [<ABSOLUTE_CC_SRC_PATH>]"
-        exit 4
+        echo "Usage: ./cc-deploy.sh <CC_VERION> <CC_SEQ> [<ABSOLUTE_CC_SRC_PATH>]"
+        exit 5
     fi
     CHAINCODE_REPO_DIR_PATH="$1"
 fi
@@ -60,14 +64,12 @@ cd "$CHAINCODE_REPO_DIR_PATH"
 
 log "Build chaincode"
 
-CONTAINER_NAME="chaincode-build"
-
 # Mind that all provided commands should work
 # with paths relative to the fabric direcotry 
 # (see the bind mount)
 mkdir -p "$GEN_BUILD"
 
-docker run -it \
+docker run --rm -it \
     --name "$CONTAINER_NAME" \
     --network host \
     --volume ".:/home/$USER" \
@@ -76,12 +78,10 @@ docker run -it \
     "gradle:8.6.0-jdk21" \
     bash -c "./gradlew shadowJar -x test"
 
-docker rm -v "$CONTAINER_NAME" >/dev/null 2>&1
-
 
 if [ $? -ne 0 ]; then
     error "Chaincode build failed with status $?"
-    exit 2
+    exit 6
 fi
 
 cd "$FABRIC_DIR_PATH"
@@ -96,31 +96,23 @@ log "Package chaincode"
 docker exec "$INIT_PEER" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
 
 ############### INSTALL
-function peer_run {
+function peer_exec {
     docker exec "$1" bash -c "$2"
 }
 
 log "Install chaincode"
 
-peer_run "peer0.medtechchain.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
-peer_run "peer0.medivale.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
-
-if [ ! $LIGHT ]; then
-    peer_run "peer0.healpoint.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
-    peer_run "peer0.lifecare.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
-fi
+peer_exec "peer0.medtechchain.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+peer_exec "peer0.healpoint.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
+peer_exec "peer0.lifecare.nl" "./chaincode/cc-install.sh $CC_NAME $CC_VERSION"
 
 ############### APPROVE
 log "Approve chaincode"
 
-peer_run "peer0.medtechchain.nl" "./chaincode/cc-approve.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-peer_run "peer0.medivale.nl" "./chaincode/cc-approve.sh orderer0.medivale.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-
-if [ ! $LIGHT ]; then
-    peer_run "peer0.healpoint.nl" "./chaincode/cc-approve.sh orderer0.healpoint.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-    peer_run "peer0.lifecare.nl" "./chaincode/cc-approve.sh orderer0.lifecare.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
-fi
+peer_exec "peer0.medtechchain.nl" "./chaincode/cc-approve.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_exec "peer0.healpoint.nl" "./chaincode/cc-approve.sh orderer0.healpoint.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_exec "peer0.lifecare.nl" "./chaincode/cc-approve.sh orderer0.lifecare.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
 
 ############### COMMIT
 log "Commit chaincode"
-peer_run "$INIT_PEER" "./chaincode/cc-commit.sh $INIT_ORDERER $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_exec "$INIT_PEER" "./chaincode/cc-commit.sh $INIT_ORDERER $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"

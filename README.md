@@ -39,7 +39,6 @@ Please refer to the `Known problems` section in case of problems.
 ### Application Development - Port Mapping
 * **Peer ports**:
     * `peer0.medtechchain.nl` - 8051
-    * `peer0.medivale.nl` - 9051
     * `peer0.healpoint.nl` - 10051
     * `peer0.lifecare.nl` - 11051
 
@@ -100,5 +99,7 @@ docker ps -a
 docker stop <ID>
 docker rm <ID>
 ```
+
+Same applies for normal containers. There is utility script that lists all docker networks and the containers that joined that network. If some containers did not join the network, remove them manually and recreate them.
 
 4. `Running out of memory`: Increase Swap size. 16 GB Ram barely suffices for one chaincode deployment with only one hospital, together with the other applications.

@@ -6,6 +6,8 @@ CHANNEL_ID="$3"
 
 export CORE_PEER_MSPCONFIGPATH=/var/hyperledger/admin/msp
 
+mkdir -p "/var/hyperledger/artifacts/channel/$PEER"
+
 peer channel signconfigtx -f "/var/hyperledger/artifacts/channel/$PEER/config_update_in_envelope.pb"
 
 peer channel update -f "/var/hyperledger/artifacts/channel/$PEER/config_update_in_envelope.pb" \

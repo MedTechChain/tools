@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   explorerdb.medtechchain.nl:
     image: ghcr.io/hyperledger-labs/explorer-db:${EXPLORER_IMAGE_VERSION}
@@ -45,7 +43,7 @@ services:
       explorerdb.medtechchain.nl:
         condition: service_healthy
     networks:
-      - internet
+      - medtechchain-global
       - blockchain-explorer
 
 volumes:
@@ -55,6 +53,6 @@ volumes:
 networks:
   blockchain-explorer:
     name: "blockchain-explorer"  
-  internet:
+  medtechchain-global:
     external: true
-    name: "global"
+    name: medtechchain-global

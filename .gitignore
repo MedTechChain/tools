@@ -1,2 +1,3 @@
 *.generated*
 *install-fabric.sh*
+/deployment

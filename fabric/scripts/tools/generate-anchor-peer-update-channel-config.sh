@@ -8,7 +8,7 @@ SCRIPT_DIR="$(cd -- "$(dirname "$0")" >/dev/null 2>&1 && pwd -P)"
 FABRIC_DIR="$SCRIPT_DIR/../.."
 
 cd "$FABRIC_DIR"
-cd "./.generated/artifacts/channel/$PEER"
+cd "./.generated/channel/$PEER"
 
 configtxlator proto_decode --input config_block.pb --type common.Block --output config_block.json
 jq '.data.data[0].payload.data.config' config_block.json >config.json

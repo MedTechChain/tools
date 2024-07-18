@@ -1,0 +1,38 @@
+OrdererOrgs:
+  - Name: MedTechChain
+    Domain: medtechchain.nl
+    Template:
+      Count: 1
+  - Name: HealPoint
+    Domain: healpoint.nl
+    Template:
+      Count: 1
+  - Name: LifeCare
+    Domain: lifecare.nl
+    Template:
+      Count: 1
+
+PeerOrgs:
+  - Name: MedTechChain
+    Domain: medtechchain.nl
+    EnableNodeOUs: false
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: HealPoint
+    Domain: healpoint.nl
+    EnableNodeOUs: false
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+  - Name: LifeCare
+    Domain: lifecare.nl
+    EnableNodeOUs: false
+    Template:
+      Count: 1
+    Users:
+      Count: 1
+
+
