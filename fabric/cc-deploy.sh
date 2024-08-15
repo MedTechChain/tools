@@ -12,12 +12,6 @@ export FABRIC_IMAGE_TAG
 CC_NAME="medtechchain"
 CC_VERSION="$1"
 CC_SEQ="$2"
-
-# When setting up the infrastructure, one organization needs to initilize the app channel
-# and deploy the chaincode. These variables are used to automate the process.
-INIT_PEER="peer0.medtechchain.nl"
-INIT_ORDERER="orderer0.medtechchain.nl"
-
 CHANNEL_ID="medtechchain"
 
 if [ ! -d "./.generated" ]; then
@@ -40,14 +34,12 @@ fi
 ############### BUILD
 CHAINCODE_REPO_DIR_PATH="$FABRIC_DIR_PATH/../../chaincode"
 if [ -z "$1" ] || [ -z "$2" ]; then
-    echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
     echo "Usage: ./cc-deploy.sh <CC_VERION> <CC_SEQ> [<ABSOLUTE_CC_SRC_PATH>]"
     exit 3
 fi
 
 if [ -z "$3" ]; then
     if [ ! -d "$CHAINCODE_REPO_DIR_PATH" ]; then
-        echo "Error: No argument provided and $CHAINCODE_REPO_DIR_PATH not present (repo)"
         echo "Usage: ./cc-deploy.sh <CC_VERION> <CC_SEQ> [<ABSOLUTE_CC_SRC_PATH>]"
         exit 4
     fi
@@ -70,7 +62,6 @@ log "Build chaincode"
 mkdir -p "$GEN_BUILD"
 
 docker run --rm -it \
-    --name "$CONTAINER_NAME" \
     --network host \
     --volume ".:/home/$USER" \
     --volume "$GEN_BUILD:/home/$USER/build" \
@@ -89,11 +80,12 @@ cd "$FABRIC_DIR_PATH"
 mkdir -p "$GEN_SRC"
 cp "$GEN_BUILD/libs/medtechchain.jar" "$GEN_SRC/medtechchain-$CC_VERSION.jar"
 
+sudo chown -R $USER:$USER ./.generated
 rm -rf "$GEN_BUILD"
 
 ############### PACKAGE
 log "Package chaincode"
-docker exec "$INIT_PEER" bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
+docker exec peer0.medtechchain.nl bash -c "./chaincode/cc-package.sh $CC_NAME $CC_VERSION"
 
 ############### INSTALL
 function peer_exec {
@@ -115,4 +107,4 @@ peer_exec "peer0.lifecare.nl" "./chaincode/cc-approve.sh orderer0.lifecare.nl $C
 
 ############### COMMIT
 log "Commit chaincode"
-peer_exec "$INIT_PEER" "./chaincode/cc-commit.sh $INIT_ORDERER $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+peer_exec "peer0.medtechchain.nl" "./chaincode/cc-commit.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"

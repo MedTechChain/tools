@@ -39,7 +39,7 @@ done
 ############### DOCKER CONTAINERS
 log "Run docker containers"
 for project in ${PROJECTS[@]}; do
-    docker compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$project.docker-compose.yaml" -p $project up -d
+    docker compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$project.docker-compose.yaml" -p "$project" up -d
     if [ $? -ne 0 ]; then
         error "Docker compose up error: $project. Failed with status $?"
         exit 3
@@ -48,6 +48,7 @@ done
 
 log "Wait... (10 seconds)"
 sleep 10
+
 ############### APP CHANNEL
 function peer_run {
     docker exec "$1" bash -c "$2"

@@ -1,0 +1,9 @@
+{
+  "address": "chaincode.{{.peername}}:9999",
+  "dial_timeout": "10s",
+  "tls_required": true,
+  "client_auth_required": true,
+  "client_key": "{{.client_key}}",
+  "client_cert": "{{.client_cert}}",
+  "root_cert": "{{.root_cert}}"
+}

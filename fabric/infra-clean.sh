@@ -24,7 +24,7 @@ docker compose down -v
 cd "./.."
 
 ############### DOCKER CONTAINERS
-log "Stopping containers"
+log "Removing containers"
 for project in ${PROJECTS[@]}; do
     docker compose --project-directory "$FABRIC_DIR_PATH" -f "./configs/docker/$project.docker-compose.yaml" -p "$project" down -v
 done
