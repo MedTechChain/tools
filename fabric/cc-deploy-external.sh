@@ -61,3 +61,11 @@ log "Commit chaincode"
 peer_exec "peer0.medtechchain.nl" "./chaincode/cc-commit.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
 
 warn "COPY THE CHAINCODE PACKAGE ID (from logs) INTO THE CHAINCODE INSTANCE CONFIGURATION"
+log "Waiting... (press any key to continue after running the chaincode containers - wait for containers to warm up)"
+
+read
+log "Do not hurry...."
+sleep 5
+
+############### INIT
+peer_exec "peer0.medtechchain.nl" "./chaincode/cc-init.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME"

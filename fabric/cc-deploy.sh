@@ -108,3 +108,6 @@ peer_exec "peer0.lifecare.nl" "./chaincode/cc-approve.sh orderer0.lifecare.nl $C
 ############### COMMIT
 log "Commit chaincode"
 peer_exec "peer0.medtechchain.nl" "./chaincode/cc-commit.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME $CC_VERSION $CC_SEQ"
+
+############### INIT
+peer_exec "peer0.medtechchain.nl" "./chaincode/cc-init.sh orderer0.medtechchain.nl $CHANNEL_ID $CC_NAME"

@@ -17,4 +17,5 @@ peer lifecycle chaincode commit \
     -C "$CHANNEL_ID" \
     -o "$ORDERER:7050" --ordererTLSHostnameOverride $ORDERER \
     -n "$CC_NAME" -v "$CC_VERSION" --sequence "$CC_SEQ" \
-    --tls --cafile /var/hyperledger/orderer-tlscacert/orderer-tlscacert.pem
+    --tls --cafile /var/hyperledger/orderer-tlscacert/orderer-tlscacert.pem \
+    --init-required
