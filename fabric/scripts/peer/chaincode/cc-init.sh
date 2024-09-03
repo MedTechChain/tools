@@ -13,4 +13,4 @@ peer chaincode invoke  \
     -n "$CC_NAME" \
     --tls --cafile /var/hyperledger/orderer-tlscacert/orderer-tlscacert.pem \
     --isInit \
-    -c '{"Args":["platformconfig:Init"]}'
+    -c '{"Args":["config:Init"]}'
